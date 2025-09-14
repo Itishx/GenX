@@ -17,27 +17,40 @@ const ProfileDropdown: React.FC = () => {
   const { user, profile, signOut, updateProfile, uploadAvatar } = useAuth()
   const [open, setOpen] = React.useState(false)
   const [tab, setTab] = React.useState<'profile' | 'agents' | 'subscriptions'>('profile')
-  const [name, setName] = React.useState(profile?.full_name ?? '')
+  const [name, setName] = React.useState(profile?.name ?? '')
   const [saving, setSaving] = React.useState(false)
   const [uploading, setUploading] = React.useState(false)
+  const [toast, setToast] = React.useState<{ type: 'success' | 'error'; msg: string } | null>(null)
   const navigate = useNavigate()
 
   React.useEffect(() => {
-    setName(profile?.full_name ?? '')
-  }, [profile?.full_name])
+    setName(profile?.name ?? '')
+  }, [profile?.name])
 
   const onSave = async () => {
     setSaving(true)
-    await updateProfile({ full_name: name })
+    const { error } = await updateProfile({ name })
     setSaving(false)
+    if (error) {
+      setToast({ type: 'error', msg: error })
+    } else {
+      setToast({ type: 'success', msg: 'Profile updated' })
+      setTimeout(() => setToast(null), 2000)
+    }
   }
 
   const onAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
     setUploading(true)
-    await uploadAvatar(file)
+    const { error } = await uploadAvatar(file)
     setUploading(false)
+    if (error) {
+      setToast({ type: 'error', msg: 'Could not upload profile picture' })
+    } else {
+      setToast({ type: 'success', msg: 'Profile updated' })
+      setTimeout(() => setToast(null), 2000)
+    }
   }
 
   const avatar = profile?.avatar_url
@@ -53,7 +66,7 @@ const ProfileDropdown: React.FC = () => {
         {avatar ? (
           <img src={avatar} alt="avatar" className="h-full w-full object-cover" />
         ) : (
-          <AvatarFallback email={user?.email} name={profile?.full_name} />
+          <AvatarFallback email={user?.email} name={profile?.name} />
         )}
       </button>
 
@@ -67,6 +80,20 @@ const ProfileDropdown: React.FC = () => {
             className="absolute right-0 z-50 mt-3 w-80 overflow-hidden rounded-lg border border-white/10 bg-black p-0 text-white shadow-xl"
             role="menu"
           >
+            {/* Inline toast */}
+            <AnimatePresence>
+              {toast && (
+                <motion.div
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  className={`${toast.type === 'success' ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30' : 'bg-rose-500/10 text-rose-300 border-rose-500/30'} m-2 rounded-md border px-3 py-2 text-xs`}
+                >
+                  {toast.msg}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             {/* Header with identity */}
             <div className="flex items-center justify-between border-b border-white/10 px-3 py-2">
               <div className="flex items-center gap-2">
@@ -74,11 +101,11 @@ const ProfileDropdown: React.FC = () => {
                   {avatar ? (
                     <img src={avatar} alt="avatar" className="h-full w-full object-cover" />
                   ) : (
-                    <AvatarFallback email={user?.email} name={profile?.full_name} />
+                    <AvatarFallback email={user?.email} name={profile?.name} />
                   )}
                 </div>
                 <div className="leading-tight">
-                  <div className="text-sm font-semibold">{profile?.full_name || user?.email}</div>
+                  <div className="text-sm font-semibold">{profile?.name || user?.email}</div>
                   <div className="text-[11px] text-zinc-400">{user?.email}</div>
                 </div>
               </div>
@@ -129,7 +156,7 @@ const ProfileDropdown: React.FC = () => {
                         {avatar ? (
                           <img src={avatar} alt="avatar" className="h-full w-full object-cover" />
                         ) : (
-                          <AvatarFallback email={user?.email} name={profile?.full_name} />
+                          <AvatarFallback email={user?.email} name={profile?.name} />
                         )}
                       </div>
                       <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-white/10 px-3 py-1.5 text-xs transition-colors hover:bg-white/10">

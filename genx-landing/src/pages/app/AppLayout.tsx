@@ -78,7 +78,8 @@ const AppLayout: React.FC = () => {
 
   // Removed extra navigate effect; index route handles redirect to /app/chat
 
-  const username = profile?.full_name || user?.email || 'there'
+  const username = profile?.name || user?.email || 'there'
+  const showHeader = !location.pathname.startsWith('/app/chat')
 
   return (
     <div className="flex min-h-screen bg-black text-white">
@@ -112,7 +113,7 @@ const AppLayout: React.FC = () => {
             <div className="flex items-center justify-between">
               <div className="min-w-0">
                 <div className="truncate text-[11px] text-zinc-400">Signed in as</div>
-                <div className="truncate text-sm font-medium">{profile?.full_name || user?.email}</div>
+                <div className="truncate text-sm font-medium">{profile?.name || user?.email}</div>
               </div>
               <ProfileDropdown />
             </div>
@@ -122,11 +123,13 @@ const AppLayout: React.FC = () => {
 
       {/* Main */}
       <main className="ml-64 flex min-h-screen flex-1 flex-col">
-        <div className="border-b border-white/10 p-4">
-          <motion.h1 initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }} className="text-lg font-semibold">
-            Hey {username}, ready to dive in?
-          </motion.h1>
-        </div>
+        {showHeader && (
+          <div className="border-b border-white/10 p-4">
+            <motion.h1 initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }} className="text-lg font-semibold">
+              Hey {username}, ready to dive in?
+            </motion.h1>
+          </div>
+        )}
         <div className="relative flex-1 overflow-hidden">
           <AnimatePresence mode="wait">
             <motion.div key={location.pathname} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.15 }} className="h-full">

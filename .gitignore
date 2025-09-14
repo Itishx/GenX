@@ -3,12 +3,16 @@
 
 # Node
 node_modules/
+**/node_modules/
 
 # Build outputs
 /dist/
 /build/
 /.vite/
 /coverage/
+# Subproject build outputs
+**/dist/
+**/build/
 
 # Env files
 .env

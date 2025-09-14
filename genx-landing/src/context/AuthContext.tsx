@@ -4,7 +4,7 @@ import type { User } from '@supabase/supabase-js'
 
 export type Profile = {
   id: string
-  full_name: string | null
+  name: string | null
   avatar_url: string | null
 }
 
@@ -17,7 +17,7 @@ type AuthContextType = {
   signInWithGoogle: () => Promise<void>
   signOut: () => Promise<void>
   refreshProfile: () => Promise<void>
-  updateProfile: (updates: Partial<Pick<Profile, 'full_name' | 'avatar_url'>>) => Promise<{ error?: string }>
+  updateProfile: (updates: Partial<Pick<Profile, 'name' | 'avatar_url'>>) => Promise<{ error?: string }>
   uploadAvatar: (file: File) => Promise<{ publicUrl?: string; error?: string }>
 }
 
@@ -29,16 +29,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true)
 
   const fetchProfile = async (u: User) => {
-    const { data, error } = await supabase.from('profiles').select('id, full_name, avatar_url').eq('id', u.id).maybeSingle()
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, name, avatar_url')
+      .eq('id', u.id)
+      .maybeSingle()
     if (error && error.code !== 'PGRST116') {
       console.error('Fetch profile error', error)
       return
     }
-    // If no row, create a default one
     if (!data) {
-      const insert = await supabase.from('profiles').insert({ id: u.id, full_name: u.user_metadata?.full_name ?? null, avatar_url: u.user_metadata?.avatar_url ?? null })
+      // Create a minimal profile row if it doesn't exist yet
+      const insert = await supabase
+        .from('profiles')
+        .insert({ id: u.id, name: (u.user_metadata as any)?.full_name ?? null, avatar_url: (u.user_metadata as any)?.avatar_url ?? null })
       if (insert.error) console.warn('Profile insert warning', insert.error)
-      setProfile({ id: u.id, full_name: u.user_metadata?.full_name ?? null, avatar_url: u.user_metadata?.avatar_url ?? null })
+      setProfile({ id: u.id, name: (u.user_metadata as any)?.full_name ?? null, avatar_url: (u.user_metadata as any)?.avatar_url ?? null })
       return
     }
     setProfile(data as Profile)
@@ -48,19 +54,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     let mounted = true
     const init = async () => {
       setLoading(true)
-      const { data } = await supabase.auth.getSession()
-      const sess = data.session
-      if (!mounted) return
-      setUser(sess?.user ?? null)
-      if (sess?.user) await fetchProfile(sess.user)
-      setLoading(false)
+      try {
+        const { data } = await supabase.auth.getSession()
+        if (!mounted) return
+        const sess = data.session
+        setUser(sess?.user ?? null)
+        if (sess?.user) {
+          // Don't block the UI on profile fetch
+          fetchProfile(sess.user).catch((e) => console.error('Profile fetch error (init)', e))
+        } else {
+          setProfile(null)
+        }
+      } catch (e) {
+        console.error('getSession error', e)
+      } finally {
+        if (mounted) setLoading(false)
+      }
     }
     init()
 
     const { data: sub } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (!mounted) return
       setUser(session?.user ?? null)
       if (session?.user) {
-        await fetchProfile(session.user)
+        fetchProfile(session.user).catch((e) => console.error('Profile fetch error (onAuthStateChange)', e))
       } else {
         setProfile(null)
       }
@@ -92,7 +109,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       await supabase.auth.signOut()
     } finally {
-      // Immediately clear local state so Navbar/Homepage reflect logged-out UI
       setUser(null)
       setProfile(null)
     }
@@ -107,26 +123,91 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!user) return { error: 'Not authenticated' }
     const { data, error } = await supabase
       .from('profiles')
-      .upsert({ id: user.id, ...updates })
-      .select('id, full_name, avatar_url')
+      .upsert({ id: user.id, ...updates }, { onConflict: 'id' })
+      .select('id, name, avatar_url')
       .single()
     if (error) return { error: error.message }
     setProfile(data as Profile)
     return {}
   }
 
+  // Helper: downscale large images to ~1024px max dimension and JPEG to reduce size
+  async function downscaleImage(file: File): Promise<File> {
+    return new Promise((resolve, reject) => {
+      const img = new Image()
+      img.onload = () => {
+        const maxDim = 1024
+        const scale = Math.min(1, maxDim / Math.max(img.width, img.height))
+        const w = Math.max(1, Math.round(img.width * scale))
+        const h = Math.max(1, Math.round(img.height * scale))
+        const canvas = document.createElement('canvas')
+        canvas.width = w
+        canvas.height = h
+        const ctx = canvas.getContext('2d')
+        if (!ctx) return reject(new Error('Canvas unsupported'))
+        ctx.drawImage(img, 0, 0, w, h)
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) return reject(new Error('Compression failed'))
+            const f = new File([blob], 'avatar.jpg', { type: 'image/jpeg' })
+            resolve(f)
+          },
+          'image/jpeg',
+          0.88
+        )
+      }
+      img.onerror = () => reject(new Error('Image decode failed'))
+      img.src = URL.createObjectURL(file)
+    })
+  }
+
   const uploadAvatar: AuthContextType['uploadAvatar'] = async (file) => {
     if (!user) return { error: 'Not authenticated' }
-    const ext = file.name.split('.').pop() || 'jpg'
-    const path = `${user.id}/${crypto.randomUUID()}.${ext}`
-    // Use the 'profile_pic' bucket as requested
-    const { error: upErr } = await supabase.storage.from('profile_pic').upload(path, file, { upsert: false, contentType: file.type })
-    if (upErr) return { error: upErr.message }
+
+    // Handle HEIC/HEIF explicitly (browser cannot decode reliably without extra libs)
+    const ext0 = (file.name.split('.').pop() || '').toLowerCase()
+    if (ext0 === 'heic' || ext0 === 'heif' || file.type === 'image/heic' || file.type === 'image/heif') {
+      try {
+        const converted = await downscaleImage(file) // will likely fail to decode HEIC; try anyway
+        file = converted
+      } catch {
+        return { error: 'HEIC images are not supported in this browser. Please upload a JPG/PNG/WEBP image.' }
+      }
+    }
+
+    // Downscale if very large (> 2MB) to avoid payload or policy limits
+    if (file.size > 2_000_000 && file.type.startsWith('image/')) {
+      try {
+        file = await downscaleImage(file)
+      } catch (e) {
+        console.warn('Downscale failed, proceeding with original file', e)
+      }
+    }
+
+    const ext = (file.name.split('.').pop() || 'png').toLowerCase()
+    const path = `${user.id}/avatar.${ext}`
+    const mimeFromExt = (e: string) => (
+      e === 'jpg' || e === 'jpeg' ? 'image/jpeg'
+      : e === 'png' ? 'image/png'
+      : e === 'gif' ? 'image/gif'
+      : e === 'webp' ? 'image/webp'
+      : 'application/octet-stream'
+    )
+    const contentType = file.type || mimeFromExt(ext)
+    const { error: upErr } = await supabase.storage
+      .from('profile_pic')
+      .upload(path, file, { upsert: true, contentType })
+    if (upErr) {
+      console.error('Supabase Storage upload error (profile_pic):', upErr)
+      return { error: upErr.message }
+    }
     const { data } = supabase.storage.from('profile_pic').getPublicUrl(path)
     const publicUrl = data.publicUrl
-    // Save to profile
     const res = await updateProfile({ avatar_url: publicUrl })
-    if (res.error) return { error: res.error }
+    if (res.error) {
+      console.error('Update profile with avatar_url failed:', res.error)
+      return { error: res.error }
+    }
     return { publicUrl }
   }
 

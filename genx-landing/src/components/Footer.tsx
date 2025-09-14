@@ -7,8 +7,12 @@ const Footer: React.FC = () => {
       <div className="mx-auto max-w-7xl px-8 py-16">
         <div className="grid grid-cols-1 gap-12 md:grid-cols-12">
           {/* Left: Watermark brand */}
-          <div className="flex flex-col items-center md:col-span-4 md:items-start">
+          <div className="flex flex-col items-start md:col-span-4">
             <div className="text-5xl font-extrabold tracking-tight text-white/90 md:text-7xl">AgentX</div>
+            {/* tagline added below logo */}
+            <p className="mt-4 max-w-md text-left text-[13px] leading-relaxed text-zinc-400">
+              Your personal army of AI specialists, powered by the latest LLMs and designed for real-world productivity.
+            </p>
           </div>
 
           {/* Center: Link columns */}
