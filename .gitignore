@@ -1,0 +1,28 @@
+# macOS
+.DS_Store
+
+# Node
+node_modules/
+
+# Build outputs
+/dist/
+/build/
+/.vite/
+/coverage/
+
+# Env files
+.env
+.env.*
+!.env.example
+
+# Editors
+.vscode/
+.idea/
+
+# Logs
+logs/
+*.log
+*.log.*
+
+# Supabase local
+.supabase/
