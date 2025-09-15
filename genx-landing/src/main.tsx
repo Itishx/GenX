@@ -17,37 +17,41 @@ import CodeXPage from '@/pages/agents/CodeX'
 import BusinessXPage from '@/pages/agents/BusinessX'
 import MarketXPage from '@/pages/agents/MarketX'
 import DietXPage from '@/pages/agents/DietX'
+import ErrorBoundary from '@/components/ErrorBoundary'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <AuthProvider>
-        <Routes>
-          <Route path="/" element={<App />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<App />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
 
-          <Route
-            path="/app"
-            element={
-              <ProtectedRoute>
-                <AppLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<Navigate to="chat" replace />} />
-            <Route path="chat" element={<AppChat />} />
-            <Route path="agents" element={<MyAgents />} />
-            <Route path="subscriptions" element={<Subscriptions />} />
-          </Route>
+            <Route
+              path="/app"
+              element={
+                <ProtectedRoute>
+                  <AppLayout />
+                </ProtectedRoute>
+              }
+            >
+              {/* Redirect /app to Agents by default */}
+              <Route index element={<Navigate to="agents" replace />} />
+              <Route path="chat" element={<AppChat />} />
+              <Route path="agents" element={<MyAgents />} />
+              <Route path="subscriptions" element={<Subscriptions />} />
+            </Route>
 
-          {/* Legacy agent showcase pages remain accessible */}
-          <Route path="/codex" element={<CodeXPage />} />
-          <Route path="/businessx" element={<BusinessXPage />} />
-          <Route path="/marketx" element={<MarketXPage />} />
-          <Route path="/dietx" element={<DietXPage />} />
-        </Routes>
-      </AuthProvider>
-    </BrowserRouter>
+            {/* Legacy agent showcase pages remain accessible */}
+            <Route path="/codex" element={<CodeXPage />} />
+            <Route path="/businessx" element={<BusinessXPage />} />
+            <Route path="/marketx" element={<MarketXPage />} />
+            <Route path="/dietx" element={<DietXPage />} />
+          </Routes>
+        </AuthProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   </React.StrictMode>
 )

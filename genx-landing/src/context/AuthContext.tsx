@@ -19,6 +19,8 @@ type AuthContextType = {
   refreshProfile: () => Promise<void>
   updateProfile: (updates: Partial<Pick<Profile, 'name' | 'avatar_url'>>) => Promise<{ error?: string }>
   uploadAvatar: (file: File) => Promise<{ publicUrl?: string; error?: string }>
+  hasAgents: boolean
+  refreshAgentsStatus: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -27,6 +29,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
+  const [hasAgents, setHasAgents] = useState(false)
 
   const fetchProfile = async (u: User) => {
     const { data, error } = await supabase
@@ -50,6 +53,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setProfile(data as Profile)
   }
 
+  const refreshAgentsStatus = async () => {
+    if (!user) {
+      setHasAgents(false)
+      return
+    }
+    try {
+      const { count, error } = await supabase
+        .from('agents')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+      if (error) {
+        console.warn('refreshAgentsStatus error (ignored):', error)
+        setHasAgents(false)
+        return
+      }
+      setHasAgents((count ?? 0) > 0)
+    } catch (e) {
+      console.warn('refreshAgentsStatus exception (ignored):', e)
+      setHasAgents(false)
+    }
+  }
+
   useEffect(() => {
     let mounted = true
     const init = async () => {
@@ -60,10 +85,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const sess = data.session
         setUser(sess?.user ?? null)
         if (sess?.user) {
-          // Don't block the UI on profile fetch
           fetchProfile(sess.user).catch((e) => console.error('Profile fetch error (init)', e))
+          refreshAgentsStatus().catch((e) => console.error('Agents status error (init)', e))
         } else {
           setProfile(null)
+          setHasAgents(false)
         }
       } catch (e) {
         console.error('getSession error', e)
@@ -78,8 +104,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(session?.user ?? null)
       if (session?.user) {
         fetchProfile(session.user).catch((e) => console.error('Profile fetch error (onAuthStateChange)', e))
+        refreshAgentsStatus().catch((e) => console.error('Agents status error (auth change)', e))
       } else {
         setProfile(null)
+        setHasAgents(false)
       }
     })
 
@@ -102,7 +130,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
   const signInWithGoogle = async () => {
-    await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: `${window.location.origin}/app` } })
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/app`,
+        skipBrowserRedirect: true,
+      },
+    })
+    if (error) throw new Error(error.message)
+    if (data?.url) {
+      window.location.href = data.url
+      return
+    }
+    throw new Error('Unable to start Google sign-in. Please try again later.')
   }
 
   const signOut = async () => {
@@ -111,6 +151,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       setUser(null)
       setProfile(null)
+      setHasAgents(false)
     }
   }
 
@@ -164,18 +205,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const uploadAvatar: AuthContextType['uploadAvatar'] = async (file) => {
     if (!user) return { error: 'Not authenticated' }
 
-    // Handle HEIC/HEIF explicitly (browser cannot decode reliably without extra libs)
     const ext0 = (file.name.split('.').pop() || '').toLowerCase()
     if (ext0 === 'heic' || ext0 === 'heif' || file.type === 'image/heic' || file.type === 'image/heif') {
       try {
-        const converted = await downscaleImage(file) // will likely fail to decode HEIC; try anyway
+        const converted = await downscaleImage(file)
         file = converted
       } catch {
         return { error: 'HEIC images are not supported in this browser. Please upload a JPG/PNG/WEBP image.' }
       }
     }
 
-    // Downscale if very large (> 2MB) to avoid payload or policy limits
     if (file.size > 2_000_000 && file.type.startsWith('image/')) {
       try {
         file = await downscaleImage(file)
@@ -212,8 +251,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
   const value = useMemo(
-    () => ({ user, profile, loading, signInWithPassword, signUpWithPassword, signInWithGoogle, signOut, refreshProfile, updateProfile, uploadAvatar }),
-    [user, profile, loading]
+    () => ({ user, profile, loading, signInWithPassword, signUpWithPassword, signInWithGoogle, signOut, refreshProfile, updateProfile, uploadAvatar, hasAgents, refreshAgentsStatus }),
+    [user, profile, loading, hasAgents]
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

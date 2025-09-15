@@ -1,48 +1,58 @@
 import React from 'react'
-import Navbar from '@/components/Navbar'
-import Footer from '@/components/Footer'
+import { useAuth } from '@/context/AuthContext'
+import { supabase } from '@/lib/supabaseClient'
+import { useNavigate, Navigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 
 const DietXPage: React.FC = () => {
-  return (
-    <div className="flex min-h-screen flex-col bg-black text-white">
-      <Navbar />
-      <main className="pt-24">
-        <section className="mx-auto max-w-7xl px-6 py-10">
-          <motion.h1
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="text-4xl font-extrabold tracking-tight md:text-6xl"
-          >
-            DietX
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.1 }}
-            className="mt-4 max-w-2xl text-lg text-zinc-300"
-          >
-            Personal nutrition plans, grocery lists, and habit tracking. Health made simple and sustainable.
-          </motion.p>
+  const { user } = useAuth()
+  const navigate = useNavigate()
+  const [loading, setLoading] = React.useState(true)
+  const [agent, setAgent] = React.useState<{ name: string; config: any } | null>(null)
 
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.15 }}
-            className="mt-8"
-          >
-            <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] shadow-2xl">
-              <div
-                className="aspect-[16/9] w-full bg-cover bg-center"
-                style={{ backgroundImage: "url('/assets/pawel-czerwinski-1A_dO4TFKgM-unsplash.jpg')" }}
-              />
-              <div className="pointer-events-none absolute -inset-px rounded-2xl bg-gradient-to-br from-rose-600/30 to-purple-600/20" />
+  React.useEffect(() => {
+    const load = async () => {
+      if (!user) return
+      setLoading(true)
+      const { data, error } = await supabase
+        .from('agents')
+        .select('name, config')
+        .eq('user_id', user.id)
+        .eq('slug', 'dietx')
+        .maybeSingle()
+      if (error) console.warn('Fetch DietX config error:', error)
+      setAgent((data as any) ?? null)
+      setLoading(false)
+    }
+    load()
+  }, [user?.id])
+
+  if (!user) return <Navigate to="/login" replace />
+
+  return (
+    <div className="min-h-screen bg-black text-white">
+      <div className="mx-auto max-w-4xl p-4">
+        <motion.h1 initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="text-xl font-semibold">DietX Dashboard</motion.h1>
+        <div className="mt-3 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+          {loading ? (
+            <div className="text-sm text-zinc-400">Loading…</div>
+          ) : agent ? (
+            <div className="space-y-2 text-sm">
+              <div><span className="text-zinc-400">Display name:</span> <span className="font-medium text-white">{agent.name}</span></div>
+              {agent.config?.profession && <div><span className="text-zinc-400">Profession:</span> {agent.config.profession}</div>}
+              {agent.config?.purpose && <div><span className="text-zinc-400">Purpose:</span> {agent.config.purpose}</div>}
+              {agent.config?.notes && <div><span className="text-zinc-400">Notes:</span> {agent.config.notes}</div>}
             </div>
-          </motion.div>
-        </section>
-      </main>
-      <Footer />
+          ) : (
+            <div className="text-sm text-zinc-400">Not configured yet.</div>
+          )}
+        </div>
+
+        <div className="mt-4 flex gap-2">
+          <button onClick={() => navigate('/app/agents')} className="rounded-md border border-white/20 px-3 py-2 text-sm text-white hover:bg-white/10">Back to Agents</button>
+          <button onClick={() => navigate('/app/chat?agent=dietx')} className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-black">Go to Workspace (Chat)</button>
+        </div>
+      </div>
     </div>
   )
 }

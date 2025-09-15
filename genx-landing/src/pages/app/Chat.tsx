@@ -2,6 +2,7 @@ import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FiSend, FiMic } from 'react-icons/fi'
 import { useAuth } from '@/context/AuthContext'
+import { useSearchParams } from 'react-router-dom'
 
 export type ChatMessage = { id: string; role: 'user' | 'assistant'; text: string; ts: number }
 
@@ -23,12 +24,20 @@ const ChatPage: React.FC = () => {
   const [messages, setMessages] = React.useState<ChatMessage[]>([])
   const [input, setInput] = React.useState('')
   const [isTyping, setIsTyping] = React.useState(false)
+  const [params] = useSearchParams()
 
   const endRef = React.useRef<HTMLDivElement | null>(null)
   const scrollRef = React.useRef<HTMLDivElement | null>(null)
   const textareaRef = React.useRef<HTMLTextAreaElement | null>(null)
 
   const username = profile?.name || user?.email || 'there'
+
+  const slug = (params.get('agent') || '').toLowerCase()
+  const agentLabel = slug === 'codex' ? 'CodeX'
+    : slug === 'businessx' ? 'BusinessX'
+    : slug === 'marketx' ? 'MarketX'
+    : slug === 'dietx' ? 'DietX'
+    : 'AgentX'
 
   // Auto-expand textarea up to 4 lines
   React.useEffect(() => {
@@ -74,7 +83,7 @@ const ChatPage: React.FC = () => {
     <div className="flex flex-1 items-center justify-center px-4">
       <div className="mx-auto w-full max-w-2xl">
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }} className="text-center">
-          <h2 className="text-2xl font-semibold text-white">{`Ready when you are, ${username}`}</h2>
+          <h2 className="text-2xl font-semibold text-white">{`Chat with ${agentLabel}, ${username}`}</h2>
           <p className="mt-2 text-sm text-zinc-400">Ask anything and I’ll jump in.</p>
         </motion.div>
 
@@ -86,6 +95,7 @@ const ChatPage: React.FC = () => {
             onSend={send}
             textareaRef={textareaRef}
             centered
+            placeholderLabel={agentLabel}
           />
         </div>
       </div>
@@ -132,7 +142,7 @@ const ChatPage: React.FC = () => {
           {/* Bottom chatbar */}
           <div className="sticky bottom-0 z-10 border-t border-white/10 bg-black/60 backdrop-blur">
             <div className="mx-auto max-w-2xl px-4 py-3">
-              <Chatbar input={input} setInput={setInput} onSend={send} textareaRef={textareaRef} />
+              <Chatbar input={input} setInput={setInput} onSend={send} textareaRef={textareaRef} placeholderLabel={agentLabel} />
             </div>
           </div>
         </>
@@ -147,7 +157,8 @@ const Chatbar: React.FC<{
   onSend: () => void
   textareaRef: React.RefObject<HTMLTextAreaElement>
   centered?: boolean
-}> = ({ input, setInput, onSend, textareaRef, centered }) => {
+  placeholderLabel?: string
+}> = ({ input, setInput, onSend, textareaRef, centered, placeholderLabel }) => {
   return (
     <div>
       <div className={`flex items-end gap-2 rounded-2xl border px-3 py-2 shadow-sm ${
@@ -164,7 +175,7 @@ const Chatbar: React.FC<{
             }
           }}
           rows={1}
-          placeholder={`Message ${'AgentX'}…`}
+          placeholder={`Message ${placeholderLabel || 'AgentX'}…`}
           className="min-w-0 flex-1 resize-none bg-transparent px-2 py-2 text-sm text-white outline-none placeholder:text-zinc-500"
         />
         <div className="flex items-center gap-1 pb-1">

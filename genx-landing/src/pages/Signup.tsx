@@ -11,6 +11,7 @@ const Signup: React.FC = () => {
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const [info, setInfo] = React.useState<string | null>(null)
+  const [googleLoading, setGoogleLoading] = React.useState(false)
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -27,7 +28,16 @@ const Signup: React.FC = () => {
   }
 
   const onGoogle = async () => {
-    await signInWithGoogle()
+    setError(null)
+    setInfo(null)
+    setGoogleLoading(true)
+    try {
+      await signInWithGoogle()
+    } catch (e: any) {
+      setError(e?.message || 'Google sign-in failed. Please try again.')
+    } finally {
+      setGoogleLoading(false)
+    }
   }
 
   return (
@@ -83,8 +93,8 @@ const Signup: React.FC = () => {
             <div className="h-px flex-1 bg-white/10" />
           </div>
 
-          <Button onClick={onGoogle} variant="outline" className="w-full border-white/20 text-white hover:bg-white/10">
-            Continue with Google
+          <Button onClick={onGoogle} variant="outline" className="w-full border-white/20 text-white hover:bg-white/10" disabled={googleLoading}>
+            {googleLoading ? 'Connecting…' : 'Continue with Google'}
           </Button>
 
           <p className="mt-6 text-center text-sm text-zinc-400">

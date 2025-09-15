@@ -8,7 +8,7 @@ const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false)
   const toggleMenu = () => setIsOpen((p) => !p)
   const closeMenu = () => setIsOpen(false)
-  const { user } = useAuth()
+  const { user, hasAgents } = useAuth()
 
   return (
     <header className="fixed inset-x-0 top-0 z-40">
@@ -31,10 +31,10 @@ const Navbar: React.FC = () => {
               {user ? (
                 <>
                   <Link
-                    to="/app/chat"
+                    to="/app/agents"
                     className="hidden rounded-md border border-white/15 bg-white/0 px-3 py-1.5 text-sm text-white transition-colors hover:bg-white/10 md:inline-flex"
                   >
-                    Go to App
+                    {hasAgents ? 'My Agents' : 'Create an Agentic Workspace'}
                   </Link>
                   <ProfileDropdown />
                 </>
