@@ -80,6 +80,7 @@ const AppLayout: React.FC = () => {
 
   const username = profile?.name || user?.email || 'there'
   const showHeader = !location.pathname.startsWith('/app/chat')
+  const hideSidebarButtons = location.pathname.startsWith('/app/agents') || location.pathname.startsWith('/app/chat')
 
   return (
     <div className="flex min-h-screen bg-black text-white">
@@ -99,10 +100,15 @@ const AppLayout: React.FC = () => {
 
           {/* Nav */}
           <nav className="flex-1 space-y-1 px-1">
-            <SidebarItem to="/app/chat" label="Chat" icon={<FiMessageCircle className="h-3.5 w-3.5" />} />
-            <SidebarItem to="/app/agents" label="My Agents" icon={<FiUsers className="h-3.5 w-3.5" />} />
-            <CreateWorkflowButton onClick={() => setWorkflowOpen(true)} />
-            <SidebarItem to="/app/subscriptions" label="Subscriptions" icon={<FiCreditCard className="h-3.5 w-3.5" />} />
+            <SidebarItem to="/app/chat" label="General Chat" icon={<FiMessageCircle className="h-3.5 w-3.5" />} />
+            <SidebarItem to="/app/agents" label="Agentic Workspaces" icon={<FiUsers className="h-3.5 w-3.5" />} />
+            {/* Hide workflow and subscriptions when on Agents page */}
+            {!hideSidebarButtons && (
+              <>
+                <CreateWorkflowButton onClick={() => setWorkflowOpen(true)} />
+                <SidebarItem to="/app/subscriptions" label="Subscriptions" icon={<FiCreditCard className="h-3.5 w-3.5" />} />
+              </>
+            )}
           </nav>
 
           {/* Divider */}
@@ -115,7 +121,9 @@ const AppLayout: React.FC = () => {
                 <div className="truncate text-[11px] text-zinc-400">Signed in as</div>
                 <div className="truncate text-sm font-medium">{profile?.name || user?.email}</div>
               </div>
-              <ProfileDropdown />
+              <div className="relative">
+                <ProfileDropdown placement="bottom" showExtraLinks={false} />
+              </div>
             </div>
           </div>
         </div>

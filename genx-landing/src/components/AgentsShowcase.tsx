@@ -100,7 +100,7 @@ const AgentSection: React.FC<{
 
         {/* Mobile image preview */}
         <div
-          className="mt-8 aspect-[16/9] w-full overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] md:hidden"
+          className="mt-8 aspect-[16/9] w-full overflow-hidden border border-white/10 bg-white/[0.03] md:hidden"
           style={{
             backgroundImage: `url(${agent.image})`,
             backgroundSize: 'cover',
@@ -116,6 +116,34 @@ const AgentSection: React.FC<{
 
 const AgentsShowcase: React.FC = () => {
   const [active, setActive] = React.useState(0)
+  // Track scroll direction to control image slide in/out
+  const [direction, setDirection] = React.useState<'down' | 'up'>('down')
+
+  // Update active and determine direction based on index change
+  const handleActive = React.useCallback((nextIndex: number) => {
+    setActive(prev => {
+      if (nextIndex === prev) return prev
+      setDirection(nextIndex > prev ? 'down' : 'up')
+      return nextIndex
+    })
+  }, [])
+
+  // Motion variants for overlapping slide transitions
+  const imageVariants = {
+    enter: (dir: 'down' | 'up') => ({
+      y: dir === 'down' ? '100%' : '-100%',
+      opacity: 0,
+    }),
+    center: {
+      y: '0%',
+      opacity: 1,
+    },
+    exit: (dir: 'down' | 'up') => ({
+      // Slight move in the same direction to keep a layered feel
+      y: dir === 'down' ? '-20%' : '20%',
+      opacity: 0,
+    }),
+  }
 
   return (
     <section id="agents" className="relative bg-black text-white py-24">
@@ -124,7 +152,7 @@ const AgentsShowcase: React.FC = () => {
           {/* Left: stacked sections */}
           <div className="relative">
             {agents.map((agent, i) => (
-              <AgentSection key={agent.id} agent={agent} index={i} onActive={setActive} />
+              <AgentSection key={agent.id} agent={agent} index={i} onActive={handleActive} />
             ))}
 
             {/* Spacer to ensure sticky releases cleanly after last agent */}
@@ -133,16 +161,19 @@ const AgentsShowcase: React.FC = () => {
 
           {/* Right: sticky visual that updates with active */}
           <div className="relative hidden md:block">
-            <div className="sticky top-28">
-              <div className="relative mx-auto aspect-[16/9] w-full max-w-xl overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] shadow-2xl">
-                <AnimatePresence mode="wait">
+            <div className="sticky top-0">
+              <div className="relative mx-auto h-screen w-full overflow-hidden border border-white/10 bg-white/[0.03] shadow-2xl">
+                <AnimatePresence /* allow overlap */ initial={false}>
                   <motion.div
                     key={agents[active].id}
-                    initial={{ opacity: 0, scale: 0.98 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.98 }}
-                    transition={{ duration: 0.35, ease: 'easeOut' }}
-                    className="absolute inset-0"
+                    className="absolute inset-0 will-change-transform"
+                    // Use variants to control slide direction and overlap
+                    variants={imageVariants}
+                    custom={direction}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    transition={{ duration: 0.5, ease: 'easeOut' }}
                     style={{
                       backgroundImage: `url(${agents[active].image})`,
                       backgroundSize: 'cover',

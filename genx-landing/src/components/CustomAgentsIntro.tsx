@@ -1,6 +1,9 @@
-import React from 'react'
+import React from 'react';
+import { FiArrowUpRight } from 'react-icons/fi';
+import { useAuth } from '@/context/AuthContext';
 
 const CustomAgentsIntro: React.FC = () => {
+  const { user } = useAuth();
   return (
     <section className="bg-black py-24 text-white mt-16 md:mt-[5.5rem]">
       <div className="mx-auto max-w-7xl px-6">
@@ -13,6 +16,15 @@ const CustomAgentsIntro: React.FC = () => {
             <p className="mt-4 max-w-md text-lg text-gray-400">
               From ideation to execution, AgentX gives you specialized AI agents to handle coding, marketing, business planning, and more.
             </p>
+            <div className="mt-8">
+              <a
+                href={user ? "/app/agents" : "/signup"}
+                className="inline-flex items-center gap-x-2 rounded-full border border-white bg-black px-5 py-2 text-sm font-semibold text-white shadow-sm transition-colors duration-300 ease-in-out hover:border-black hover:bg-white hover:text-black"
+              >
+                Get Started
+                <FiArrowUpRight className="h-4 w-4" />
+              </a>
+            </div>
           </div>
 
           {/* Right: Image container */}

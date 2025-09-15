@@ -21,6 +21,7 @@ const Navbar: React.FC = () => {
           <ul className="absolute left-1/2 hidden -translate-x-1/2 transform items-center gap-x-8 text-sm text-zinc-300 md:flex">
             <li><a href="/#home" className="transition-colors hover:text-white">Home</a></li>
             <li><a href="/#agents" className="transition-colors hover:text-white">Agents</a></li>
+            <li><Link to="/about" className="transition-colors hover:text-white">About</Link></li>
             <li><a href="/#pricing" className="transition-colors hover:text-white">Pricing</a></li>
           </ul>
 

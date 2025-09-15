@@ -25,7 +25,7 @@ const Footer: React.FC = () => {
                     { label: 'How it works', href: '/#home' },
                     { label: 'Use Cases', href: '/#agents' },
                     { label: 'Company', href: '/#home' },
-                    { label: 'About', href: '/#home' },
+                    { label: 'About', href: '/about' },
                     { label: 'Pricing', href: '/#pricing' },
                   ].map((l) => (
                     <li key={l.label}>

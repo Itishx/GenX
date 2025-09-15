@@ -1,5 +1,5 @@
 import React from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useDragControls } from 'framer-motion'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabaseClient'
 import { useNavigate } from 'react-router-dom'
@@ -32,6 +32,15 @@ const SetupModal: React.FC<SetupModalProps> = ({ open, onClose, agent, onSaved }
   const [saving, setSaving] = React.useState(false)
   const { user } = useAuth()
 
+  // Dragging setup
+  const overlayRef = React.useRef<HTMLDivElement | null>(null)
+  const dragControls = useDragControls()
+  const onDragHandlePointerDown = (e: React.PointerEvent) => {
+    // Only start drag with primary button / touch
+    if ((e as any).button !== undefined && (e as any).button !== 0) return
+    dragControls.start(e)
+  }
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!user) return
@@ -41,11 +50,11 @@ const SetupModal: React.FC<SetupModalProps> = ({ open, onClose, agent, onSaved }
       if (agent.slug === 'codex') config.devLevel = devLevel
       const payload = { user_id: user.id, slug: agent.slug, name: name || agent.name, config }
       const { error } = await supabase.from('agents').upsert(payload, { onConflict: 'user_id,slug' })
-      if (error) {
-        console.warn('Upsert agents error:', error)
-      } else {
+      if (!error) {
         onSaved(agent.slug)
         onClose()
+      } else {
+        console.warn('Upsert agents error:', error)
       }
     } finally {
       setSaving(false)
@@ -55,18 +64,28 @@ const SetupModal: React.FC<SetupModalProps> = ({ open, onClose, agent, onSaved }
   return (
     <AnimatePresence>
       {open && (
-        <motion.div className="fixed inset-0 z-50" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+        <motion.div className="fixed inset-0 z-50" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} ref={overlayRef}>
           <div className="absolute inset-0 bg-black/60" onClick={onClose} />
           <motion.div
-            className="absolute left-1/2 top-1/2 w-[min(92vw,560px)] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-white/10 bg-black p-6 text-white shadow-2xl"
+            className="absolute left-1/2 top-1/2 w-[min(92vw,560px)] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-white/10 bg-black p-6 text-white shadow-2xl will-change-transform"
             initial={{ scale: 0.96, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.96, opacity: 0 }}
             transition={{ duration: 0.15, ease: 'easeOut' }}
             role="dialog"
             aria-modal="true"
+            // Draggable config
+            drag
+            dragControls={dragControls}
+            dragListener={false}
+            dragMomentum={false}
+            dragElastic={0.08}
+            dragConstraints={overlayRef}
           >
-            <div className="flex items-center justify-between">
+            <div
+              className="flex cursor-move select-none items-center justify-between rounded-md p-1 -m-1"
+              onPointerDown={onDragHandlePointerDown}
+            >
               <h3 className="text-lg font-semibold">Set up {agent.name}</h3>
               <button onClick={onClose} className="rounded p-1 text-zinc-400 hover:bg-white/10 hover:text-white" aria-label="Close">
                 <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
@@ -131,9 +150,9 @@ const SetupModal: React.FC<SetupModalProps> = ({ open, onClose, agent, onSaved }
                 />
               </div>
 
-              <div className="flex justify-end gap-2">
+              <div className="flex justify-end gap-2 pt-1">
                 <button type="button" onClick={onClose} className="rounded-md border border-white/20 px-3 py-2 text-sm text-white hover:bg-white/10">Cancel</button>
-                <button type="submit" disabled={saving} className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-black disabled:opacity-70">{saving ? 'Saving…' : 'Save & Continue'}</button>
+                <button type="submit" disabled={saving} className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-black disabled:opacity-70">{saving ? 'Saving…' : 'Create'}</button>
               </div>
             </form>
           </motion.div>
@@ -178,19 +197,8 @@ const MyAgents: React.FC = () => {
     if (user) refresh()
   }, [user?.id, refresh])
 
-  const goDashboard = (slug: AgentSlug) => {
-    // Temporary: use marketing pages as dashboard placeholders
-    const map: Record<AgentSlug, string> = {
-      codex: '/codex',
-      businessx: '/businessx',
-      marketx: '/marketx',
-      dietx: '/dietx',
-    }
-    navigate(map[slug])
-  }
-
   const goWorkspace = (slug: AgentSlug) => {
-    navigate(`/app/chat?agent=${slug}`)
+    navigate(`/app/agents/${slug}`)
   }
 
   return (
@@ -201,6 +209,7 @@ const MyAgents: React.FC = () => {
           <p className="mt-1 text-sm text-zinc-400">Configure and launch purpose-built agents.</p>
         </motion.div>
 
+        {/* Cards grid */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
           {AGENTS.map((a) => {
             const isConfigured = configured[a.slug]
@@ -227,20 +236,12 @@ const MyAgents: React.FC = () => {
                       Get Started
                     </button>
                   ) : (
-                    <>
-                      <button
-                        onClick={() => goDashboard(a.slug)}
-                        className="flex-1 rounded-md border border-white/20 px-3 py-2 text-sm text-white hover:bg-white/10"
-                      >
-                        Go to Dashboard
-                      </button>
-                      <button
-                        onClick={() => goWorkspace(a.slug)}
-                        className="flex-1 rounded-md bg-white px-3 py-2 text-sm font-semibold text-black"
-                      >
-                        Go to Workspace (Chat)
-                      </button>
-                    </>
+                    <button
+                      onClick={() => goWorkspace(a.slug)}
+                      className="flex-1 rounded-md bg-white px-3 py-2 text-sm font-semibold text-black"
+                    >
+                      Go to Workspace
+                    </button>
                   )}
                 </div>
               </motion.div>
@@ -255,10 +256,10 @@ const MyAgents: React.FC = () => {
           open={!!setupFor}
           onClose={() => setSetupFor(null)}
           agent={setupFor}
-          onSaved={(slug) => {
-            refresh()
-            refreshAgentsStatus().catch(() => {})
-            goDashboard(slug)
+          onSaved={async (slug) => {
+            await refresh()
+            await refreshAgentsStatus().catch(() => {})
+            navigate(`/app/agents/${slug}`)
           }}
         />
       )}

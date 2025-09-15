@@ -31,6 +31,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, toggleMenu, onClose }) 
   const items = [
     { href: '/#home', label: 'Home' },
     { href: '/#agents', label: 'Agents' },
+    { href: '/about', label: 'About' },
     { href: '/#pricing', label: 'Pricing' },
     ...(user ? [{ href: '/app/chat', label: 'Chat' }] : [{ href: '/login', label: 'Login' }]),
   ]

@@ -12,12 +12,18 @@ import AppLayout from './pages/app/AppLayout'
 import AppChat from './pages/app/Chat'
 import MyAgents from './pages/app/Agents'
 import Subscriptions from './pages/app/Subscriptions'
-// Agents showcase pages
-import CodeXPage from '@/pages/agents/CodeX'
-import BusinessXPage from '@/pages/agents/BusinessX'
-import MarketXPage from '@/pages/agents/MarketX'
-import DietXPage from '@/pages/agents/DietX'
 import ErrorBoundary from '@/components/ErrorBoundary'
+// Agent dashboards nested under /app/agents
+import AppCodeX from './pages/app/agents/CodeX'
+import AppBusinessX from './pages/app/agents/BusinessX'
+import AppMarketX from './pages/app/agents/MarketX'
+import AppDietX from './pages/app/agents/DietX'
+// Public agent landing pages
+import CodexLanding from '@/pages/landing/Codex'
+import BusinessXLanding from '@/pages/landing/BusinessX'
+import MarketXLanding from '@/pages/landing/MarketX'
+import DietXLanding from '@/pages/landing/DietX'
+import About from '@/pages/About'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -28,6 +34,13 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             <Route path="/" element={<App />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/about" element={<About />} />
+
+            {/* Public individual agent pages */}
+            <Route path="/codex" element={<CodexLanding />} />
+            <Route path="/businessx" element={<BusinessXLanding />} />
+            <Route path="/marketx" element={<MarketXLanding />} />
+            <Route path="/dietx" element={<DietXLanding />} />
 
             <Route
               path="/app"
@@ -37,18 +50,20 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
                 </ProtectedRoute>
               }
             >
-              {/* Redirect /app to Agents by default */}
-              <Route index element={<Navigate to="agents" replace />} />
+              {/* Redirect /app to Chat by default */}
+              <Route index element={<Navigate to="chat" replace />} />
               <Route path="chat" element={<AppChat />} />
-              <Route path="agents" element={<MyAgents />} />
+              <Route path="agents">
+                <Route index element={<MyAgents />} />
+                <Route path="codex" element={<AppCodeX />} />
+                <Route path="businessx" element={<AppBusinessX />} />
+                <Route path="marketx" element={<AppMarketX />} />
+                <Route path="dietx" element={<AppDietX />} />
+              </Route>
               <Route path="subscriptions" element={<Subscriptions />} />
             </Route>
 
-            {/* Legacy agent showcase pages remain accessible */}
-            <Route path="/codex" element={<CodeXPage />} />
-            <Route path="/businessx" element={<BusinessXPage />} />
-            <Route path="/marketx" element={<MarketXPage />} />
-            <Route path="/dietx" element={<DietXPage />} />
+            {/* Removed old top-level agent routes */}
           </Routes>
         </AuthProvider>
       </BrowserRouter>
