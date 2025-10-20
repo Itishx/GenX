@@ -36,21 +36,35 @@ const OSFlowSection = () => {
 
   const arrowVariants = {
     animate: {
-      x: [0, 8, 0],
+      strokeDashoffset: [1000, 0],
       transition: {
         duration: 2,
         repeat: Infinity,
         ease: 'easeInOut',
+        repeatDelay: 0.5,
+      },
+    },
+  }
+
+  const textVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6,
+        delay: 0.5,
+        ease: 'easeOut',
       },
     },
   }
 
   return (
     <section className="relative w-full bg-gradient-to-b from-white via-white to-gray-50 py-20 md:py-32">
-      <div className="mx-auto max-w-6xl px-6">
+      <div className="mx-auto max-w-7xl px-6">
         {/* Section Title & Taglines */}
         <motion.div
-          className="mb-16 text-center"
+          className="mb-24 md:mb-32 text-center"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: 'easeOut' }}
@@ -112,7 +126,7 @@ const OSFlowSection = () => {
 
         {/* Flow Cards Container */}
         <motion.div
-          className="relative flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 mb-16"
+          className="relative flex flex-col md:flex-row items-center justify-center gap-8 md:gap-40 mb-24"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ duration: 0.8 }}
@@ -128,12 +142,13 @@ const OSFlowSection = () => {
             onHoverStart={() => setHoveredCard('foundry')}
             onHoverEnd={() => setHoveredCard(null)}
             viewport={{ once: true, amount: 0.3 }}
-            className="w-full md:w-80 rounded-2xl bg-white border border-gray-200 p-8 shadow-lg hover:shadow-2xl transition-shadow"
+            className="w-full md:w-80 rounded-2xl bg-white border border-gray-200 p-8 shadow-md hover:shadow-xl transition-all"
+            style={{ boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)' }}
           >
             {/* Icon Placeholder */}
             <div className="mb-6 flex items-center justify-center h-16 w-16 rounded-xl bg-gradient-to-br from-orange-100 to-orange-50">
               <motion.div
-                className="text-3xl"
+                className="text-3xl flex items-center justify-center"
                 animate={hoveredCard === 'foundry' ? { scale: 1.1, rotate: 10 } : { scale: 1, rotate: 0 }}
                 transition={{ duration: 0.3 }}
               >
@@ -159,51 +174,94 @@ const OSFlowSection = () => {
             </div>
           </motion.div>
 
-          {/* Middle Connector */}
-          <div className="relative flex items-center justify-center w-full md:w-24 h-24 md:h-2">
-            {/* Animated Arrow */}
-            <motion.div
-              variants={arrowVariants}
-              animate="animate"
-              className="hidden md:flex items-center justify-center w-full"
-            >
-              <svg
-                className="w-full h-8 text-orange-500"
-                viewBox="0 0 100 40"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M 10 20 Q 50 5 90 20"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                />
-                <path
-                  d="M 80 12 L 90 20 L 80 28"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </motion.div>
-
-            {/* Mobile Vertical Connector */}
-            <div className="md:hidden absolute left-1/2 top-8 bottom-8 w-1 bg-gradient-to-b from-orange-500 to-orange-300 transform -translate-x-1/2" />
-
+          {/* Absolute positioned connector that originates from FoundryOS edge and enters LaunchOS edge */}
+          <motion.div
+            className="absolute hidden md:block left-1/2 top-1/2 -translate-y-1/2 pointer-events-none"
+            style={{ width: '200px', marginLeft: '-100px' }}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            viewport={{ once: true, amount: 0.5 }}
+          >
             {/* Connector Text */}
             <motion.p
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
+              variants={textVariants}
+              initial="hidden"
+              whileInView="visible"
               viewport={{ once: true, amount: 0.5 }}
-              className="absolute top-0 md:top-auto md:-top-10 left-1/2 transform -translate-x-1/2 text-sm font-semibold text-gray-600 whitespace-nowrap"
+              className="absolute -top-8 left-1/2 -translate-x-1/2 text-xs font-semibold text-gray-600 whitespace-nowrap text-center"
               style={{ fontFamily: "'Neue Haas Display', serif" }}
             >
-              Seamlessly continue your journey
+              Build → Launch → Grow
             </motion.p>
-          </div>
+
+            {/* Step-style connector originating from card edge to card edge */}
+            <svg
+              className="w-full h-20"
+              viewBox="0 0 200 80"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              {/* Perpendicular step connector: starts at x=0 (FoundryOS right edge), ends at x=200 (LaunchOS left edge) */}
+              <motion.path
+                d="M 0 25 L 85 25 Q 92 25 92 32 L 92 48 Q 92 55 99 55 L 200 55"
+                stroke="#FF6B35"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                fill="none"
+                initial={{ pathLength: 0, opacity: 0 }}
+                whileInView={{ pathLength: 1, opacity: 1 }}
+                transition={{ duration: 1.5, ease: "easeInOut" }}
+                viewport={{ once: true }}
+              />
+              
+              {/* Arrowhead at the end (touching LaunchOS) */}
+              <motion.path
+                d="M 193 52 L 200 55 L 193 58"
+                stroke="#FF6B35"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill="none"
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                transition={{ duration: 0.4, delay: 1.2 }}
+                viewport={{ once: true }}
+              />
+              
+              {/* Animated flowing dot */}
+              <motion.circle
+                r="2"
+                fill="#FF6B35"
+              >
+                <animateMotion
+                  dur="2.5s"
+                  repeatCount="indefinite"
+                  path="M 0 25 L 85 25 Q 92 25 92 32 L 92 48 Q 92 55 99 55 L 200 55"
+                />
+                <animate
+                  attributeName="opacity"
+                  values="0;1;1;0"
+                  dur="2.5s"
+                  repeatCount="indefinite"
+                />
+              </motion.circle>
+            </svg>
+          </motion.div>
+
+          {/* Mobile Vertical Connector */}
+          <motion.div 
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            viewport={{ once: true, amount: 0.5 }}
+            className="md:hidden flex flex-col items-center gap-2"
+          >
+            <p className="text-sm font-semibold text-gray-600 text-center" style={{ fontFamily: "'Neue Haas Display', serif" }}>
+              Seamlessly continue your journey
+            </p>
+            <div className="w-1 h-16 bg-gradient-to-b from-orange-500 to-orange-300 rounded-full" />
+          </motion.div>
 
           {/* Right Card - LaunchOS */}
           <motion.div
@@ -215,12 +273,13 @@ const OSFlowSection = () => {
             onHoverStart={() => setHoveredCard('launch')}
             onHoverEnd={() => setHoveredCard(null)}
             viewport={{ once: true, amount: 0.3 }}
-            className="w-full md:w-80 rounded-2xl bg-white border border-gray-200 p-8 shadow-lg hover:shadow-2xl transition-shadow"
+            className="w-full md:w-80 rounded-2xl bg-white border border-gray-200 p-8 shadow-md hover:shadow-xl transition-all"
+            style={{ boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)' }}
           >
             {/* Icon Placeholder */}
             <div className="mb-6 flex items-center justify-center h-16 w-16 rounded-xl bg-gradient-to-br from-orange-100 to-orange-50">
               <motion.div
-                className="text-3xl"
+                className="text-3xl flex items-center justify-center"
                 animate={hoveredCard === 'launch' ? { scale: 1.1, rotate: -10 } : { scale: 1, rotate: 0 }}
                 transition={{ duration: 0.3 }}
               >
