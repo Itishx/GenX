@@ -1,60 +1,70 @@
 import React, { useState } from 'react'
-import MobileMenu from './MobileMenu'
 import { Link } from 'react-router-dom'
-import { useAuth } from '@/context/AuthContext'
-import ProfileDropdown from '@/components/ProfileDropdown'
+import { useAuth } from '../context/AuthContext'
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false)
   const toggleMenu = () => setIsOpen((p) => !p)
-  const closeMenu = () => setIsOpen(false)
   const { user, hasAgents } = useAuth()
 
   return (
     <header className="fixed inset-x-0 top-0 z-40">
-      <nav className="w-full border-b border-white/10 bg-black/90 backdrop-blur">
-        <div className="relative mx-auto flex max-w-7xl items-center px-4 py-4">
+      <nav className="w-full border-b border-gray-100 bg-white shadow-sm backdrop-blur-sm">
+        <div className="relative mx-auto flex max-w-7xl items-center px-6 py-4">
           {/* Left: Logo */}
-          <a href="/#home" className="text-base font-semibold tracking-tight text-white">AgentX</a>
+          <a href="/#home" className="flex items-center">
+            <img 
+              src="/assets/aviatelogo.png" 
+              alt="Aviate" 
+              className="h-12 w-auto"
+            />
+          </a>
 
           {/* Center: Nav links (absolute centered) */}
-          <ul className="absolute left-1/2 hidden -translate-x-1/2 transform items-center gap-x-8 text-sm text-zinc-300 md:flex">
-            <li><a href="/#home" className="transition-colors hover:text-white">Home</a></li>
-            <li><a href="/#agents" className="transition-colors hover:text-white">Agents</a></li>
-            <li><Link to="/about" className="transition-colors hover:text-white">About</Link></li>
-            <li><a href="/#pricing" className="transition-colors hover:text-white">Pricing</a></li>
+          <ul className="absolute left-1/2 hidden -translate-x-1/2 transform items-center gap-x-8 text-sm text-gray-600 md:flex">
+            <li><a href="/#product" className="transition-colors hover:text-gray-900">Product</a></li>
+            <li><a href="/#resources" className="transition-colors hover:text-gray-900">Resources</a></li>
+            <li><a href="/#pricing" className="transition-colors hover:text-gray-900">Pricing</a></li>
+            <li><a href="/about" className="transition-colors hover:text-gray-900">About</a></li>
           </ul>
 
           {/* Right: Auth + Mobile */}
           <div className="ml-auto flex items-center">
             {/* Auth area */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               {user ? (
                 <>
                   <Link
                     to="/app/agents"
-                    className="hidden rounded-md border border-white/15 bg-white/0 px-3 py-1.5 text-sm text-white transition-colors hover:bg-white/10 md:inline-flex"
+                    className="hidden rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm text-gray-700 transition-all hover:border-gray-300 hover:bg-gray-50 md:inline-flex"
                   >
-                    {hasAgents ? 'My Agents' : 'Create an Agentic Workspace'}
+                    {hasAgents ? 'Dashboard' : 'Get Started'}
                   </Link>
-                  <ProfileDropdown />
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-900 text-sm font-medium text-white">
+                    {user.email?.charAt(0).toUpperCase()}
+                  </div>
                 </>
               ) : (
                 <>
-                  <Link to="/login" className="rounded-md border border-white/10 px-3 py-1.5 text-sm text-white transition-colors hover:bg-white/10">Login</Link>
-                  <Link to="/signup" className="ml-2 hidden rounded-md bg-white px-3 py-1.5 text-sm font-semibold text-black transition-opacity hover:opacity-90 md:inline-block">Sign up</Link>
+                  <Link to="/login" className="text-sm text-gray-600 transition-colors hover:text-gray-900">Login</Link>
+                  <Link 
+                    to="/signup" 
+                    className="ml-3 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white transition-all hover:bg-gray-800 hover:shadow-sm"
+                  >
+                    Join the Waitlist
+                  </Link>
                 </>
               )}
             </div>
 
             {/* Mobile menu button */}
-            <div className="ml-2 flex items-center md:hidden">
+            <div className="ml-3 flex items-center md:hidden">
               <button
                 aria-label="Open menu"
                 aria-expanded={isOpen}
                 aria-controls="mobile-menu"
                 onClick={toggleMenu}
-                className="inline-flex items-center justify-center rounded-md p-2 text-zinc-200 transition-colors hover:bg-white/10"
+                className="inline-flex items-center justify-center rounded-md p-2 text-gray-600 transition-colors hover:bg-gray-100"
               >
                 <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M4 6h16M4 12h16M4 18h16" />
@@ -64,9 +74,8 @@ const Navbar: React.FC = () => {
           </div>
         </div>
       </nav>
-
-      <MobileMenu isOpen={isOpen} toggleMenu={toggleMenu} onClose={closeMenu} />
     </header>
-  )}
+  )
+}
 
 export default Navbar

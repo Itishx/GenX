@@ -33,10 +33,10 @@ const ChatPage: React.FC = () => {
   const username = profile?.name || user?.email || 'there'
 
   const slug = (params.get('agent') || '').toLowerCase()
-  const agentLabel = slug === 'codex' ? 'CodeX'
-    : slug === 'businessx' ? 'BusinessX'
+  // const agentLabel = slug === 'codex' ? 'CodeX'
+  const agentLabel = slug === 'businessx' ? 'BusinessX'
     : slug === 'marketx' ? 'MarketX'
-    : slug === 'dietx' ? 'DietX'
+    // : slug === 'dietx' ? 'DietX'
     : 'AgentX'
 
   // Auto-expand textarea up to 4 lines

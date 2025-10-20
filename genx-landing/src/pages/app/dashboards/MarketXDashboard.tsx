@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { FiTrendingUp } from 'react-icons/fi'
 
 export type AgentRecord = {
-  slug: 'codex' | 'businessx' | 'marketx' | 'dietx'
+  slug: /* 'codex' | */ 'businessx' | 'marketx' /* | 'dietx' */
   name: string
   config: any
 }

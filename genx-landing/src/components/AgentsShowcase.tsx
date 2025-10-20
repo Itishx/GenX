@@ -1,6 +1,5 @@
 import React from 'react'
 import { motion, AnimatePresence, useInView } from 'framer-motion'
-import { Link } from 'react-router-dom'
 
 // Types
 type Agent = {
@@ -14,14 +13,14 @@ type Agent = {
 
 // Data
 const agents: Agent[] = [
-  {
-    id: 'codex',
-    title: 'CodeX',
-    desc: 'Your coding copilot for rapid prototyping, refactors, and test generation. Connect repos and ship faster.',
-    image: '/assets/pawel-czerwinski-1A_dO4TFKgM-unsplash.jpg',
-    gradientFrom: 'from-indigo-600/50',
-    gradientTo: 'to-fuchsia-600/30',
-  },
+  // {
+  //   id: 'codex',
+  //   title: 'CodeX',
+  //   desc: 'Your coding copilot for rapid prototyping, refactors, and test generation. Connect repos and ship faster.',
+  //   image: '/assets/pawel-czerwinski-1A_dO4TFKgM-unsplash.jpg',
+  //   gradientFrom: 'from-indigo-600/50',
+  //   gradientTo: 'to-fuchsia-600/30',
+  // },
   {
     id: 'businessx',
     title: 'BusinessX',
@@ -38,14 +37,14 @@ const agents: Agent[] = [
     gradientFrom: 'from-amber-500/50',
     gradientTo: 'to-pink-600/30',
   },
-  {
-    id: 'dietx',
-    title: 'DietX',
-    desc: 'Personal nutrition plans, grocery lists, and habit tracking. Health made simple and sustainable.',
-    image: '/assets/pawel-czerwinski-1A_dO4TFKgM-unsplash.jpg',
-    gradientFrom: 'from-rose-600/50',
-    gradientTo: 'to-purple-600/30',
-  },
+  // {
+  //   id: 'dietx',
+  //   title: 'DietX',
+  //   desc: 'Personal nutrition plans, grocery lists, and habit tracking. Health made simple and sustainable.',
+  //   image: '/assets/pawel-czerwinski-1A_dO4TFKgM-unsplash.jpg',
+  //   gradientFrom: 'from-rose-600/50',
+  //   gradientTo: 'to-purple-600/30',
+  // },
 ]
 
 // Single scrolling section for each agent (left column)
@@ -76,8 +75,8 @@ const AgentSection: React.FC<{
 
         {/* Explore button */}
         <div className="mt-6">
-          <Link
-            to={`/${agent.id}`}
+          <a
+            href={`/${agent.id}`}
             className="inline-flex items-center gap-2 rounded-full border border-white px-4 py-2 text-sm font-medium text-white transition-colors duration-200 hover:bg-white hover:text-black"
           >
             Explore
@@ -95,7 +94,7 @@ const AgentSection: React.FC<{
               <path d="M7 17 17 7" />
               <path d="M7 7h10v10" />
             </svg>
-          </Link>
+          </a>
         </div>
 
         {/* Mobile image preview */}

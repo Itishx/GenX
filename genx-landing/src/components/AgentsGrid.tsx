@@ -3,11 +3,11 @@ import { FiCode, FiBriefcase, FiTrendingUp, FiHeart } from 'react-icons/fi'
 import { motion } from 'framer-motion'
 
 const agents = [
-  {
-    icon: <FiCode className="h-6 w-6" />,
-    title: 'Code Agent',
-    desc: 'Accelerate development with code generation, refactoring, and reviews.',
-  },
+  // {
+  //   icon: <FiCode className="h-6 w-6" />,
+  //   title: 'Code Agent',
+  //   desc: 'Accelerate development with code generation, refactoring, and reviews.',
+  // },
   {
     icon: <FiBriefcase className="h-6 w-6" />,
     title: 'Biz Agent',
@@ -18,11 +18,11 @@ const agents = [
     title: 'Marketing Agent',
     desc: 'Plan campaigns, write copy, and track performance across channels.',
   },
-  {
-    icon: <FiHeart className="h-6 w-6" />,
-    title: 'Diet Agent',
-    desc: 'Personalized meal plans and nutrition guidance for your goals.',
-  },
+  // {
+  //   icon: <FiHeart className="h-6 w-6" />,
+  //   title: 'Diet Agent',
+  //   desc: 'Personalized meal plans and nutrition guidance for your goals.',
+  // },
 ]
 
 const AgentsGrid: React.FC = () => {

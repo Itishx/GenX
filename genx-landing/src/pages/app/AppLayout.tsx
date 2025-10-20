@@ -49,10 +49,10 @@ const Modal: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose
                 <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
               </button>
             </div>
-            <p className="mt-2 text-sm text-zinc-300">Coming soon: chain tools like CodeX, BusinessX, MarketX, DietX and more into multi-step workflows.</p>
+            <p className="mt-2 text-sm text-zinc-300">Coming soon: chain tools like {/* CodeX, */} BusinessX, MarketX{/* , DietX */} and more into multi-step workflows.</p>
 
             <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-              {['CodeX', 'BusinessX', 'MarketX', 'DietX'].map((tool) => (
+              {[/* 'CodeX', */ 'BusinessX', 'MarketX'/* , 'DietX' */].map((tool) => (
                 <div key={tool} className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
                   <div className="font-medium">{tool}</div>
                   <div className="mt-1 text-xs text-zinc-400">Placeholder tool card</div>

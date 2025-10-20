@@ -29,7 +29,7 @@ const plans = [
 
 const Pricing: React.FC = () => {
   return (
-    <section id="pricing" className="relative bg-black py-32">
+    <section id="pricing" className="relative bg-white py-32">
       <div className="container mx-auto max-w-6xl px-4">
         <motion.div
           className="mx-auto max-w-2xl text-center"
@@ -38,8 +38,8 @@ const Pricing: React.FC = () => {
           viewport={{ once: true, amount: 0.2 }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
         >
-          <h2 className="text-3xl font-semibold tracking-tight text-white md:text-4xl">Pricing</h2>
-          <p className="mt-3 text-zinc-300">Simple plans to fit your workflow, whether you need one agent or the whole team.</p>
+          <h2 className="text-3xl font-semibold tracking-tight text-gray-900 md:text-4xl">Pricing</h2>
+          <p className="mt-3 text-gray-600">Simple plans to fit your workflow, whether you need one agent or the whole team.</p>
         </motion.div>
 
         <motion.div
@@ -53,10 +53,10 @@ const Pricing: React.FC = () => {
             <motion.div
               key={p.name}
               className={
-                'relative rounded-2xl border p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-white/5 ' +
+                'relative rounded-2xl border p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-2xl ' +
                 (p.emphasized
-                  ? 'border-white/10 bg-white/[0.06] '
-                  : 'border-white/10 bg-white/[0.03]')
+                  ? 'border-gray-200 bg-gray-50 hover:shadow-gray-300/50'
+                  : 'border-gray-200 bg-white hover:shadow-gray-200/50')
               }
               initial={{ opacity: 0, y: 14 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -64,20 +64,20 @@ const Pricing: React.FC = () => {
               transition={{ duration: 0.5, ease: 'easeOut', delay: i * 0.06 }}
             >
               {p.emphasized && (
-                <div className="absolute -inset-px rounded-2xl bg-gradient-to-br from-indigo-500/20 to-fuchsia-500/20" aria-hidden />
+                <div className="absolute -inset-px rounded-2xl bg-gradient-to-br from-orange-500/10 to-orange-500/5" aria-hidden />
               )}
               <div className="relative">
                 {p.emphasized && (
-                  <span className="inline-flex items-center rounded-full bg-gradient-to-r from-indigo-600 to-fuchsia-600 px-3 py-1 text-xs font-medium text-white">Most Popular</span>
+                  <span className="inline-flex items-center rounded-full bg-gradient-to-r from-orange-500 to-orange-600 px-3 py-1 text-xs font-medium text-white">Most Popular</span>
                 )}
-                <h3 className="mt-3 text-lg font-semibold text-white">{p.name}</h3>
-                <p className="mt-1 text-sm text-zinc-300">{p.tagline}</p>
-                <div className="mt-4 text-3xl font-bold text-white">{p.price}</div>
+                <h3 className="mt-3 text-lg font-semibold text-gray-900">{p.name}</h3>
+                <p className="mt-1 text-sm text-gray-600">{p.tagline}</p>
+                <div className="mt-4 text-3xl font-bold text-gray-900">{p.price}</div>
 
                 <ul className="mt-6 space-y-3">
                   {p.features.map((f: string) => (
-                    <li key={f} className="flex items-start gap-3 text-sm text-zinc-200">
-                      <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-fuchsia-500 text-white">
+                    <li key={f} className="flex items-start gap-3 text-sm text-gray-700">
+                      <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-br from-orange-500 to-orange-600 text-white">
                         <FiCheck className="h-3.5 w-3.5" />
                       </span>
                       <span>{f}</span>
@@ -87,9 +87,9 @@ const Pricing: React.FC = () => {
 
                 <div className="mt-8">
                   {p.emphasized ? (
-                    <Button className="w-full bg-gradient-to-r from-indigo-600 to-fuchsia-600 text-white hover:opacity-90">Get All-Access</Button>
+                    <Button className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:opacity-90">Get All-Access</Button>
                   ) : (
-                    <Button variant="outline" className="w-full border-white/20 text-white hover:bg-white/10">Choose Plan</Button>
+                    <Button variant="outline" className="w-full border-gray-200 text-gray-900 hover:bg-gray-50">Choose Plan</Button>
                   )}
                 </div>
               </div>

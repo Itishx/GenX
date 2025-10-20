@@ -1,11 +1,12 @@
 import React from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
-import Footer from './components/Footer';
+import TwoOSSection from './components/TwoOSSection';
+import OSTabSection from './components/OSTabSection';
+import OSFlowSection from './components/OSFlowSection';
 import Pricing from './components/Pricing';
-import AgentsShowcase from './components/AgentsShowcase';
-import CustomAgentsIntro from './components/CustomAgentsIntro';
-import ModelFlexibility from './components/ModelFlexibility';
+import MotionHeadlineSection from './components/MotionHeadlineSection';
+import Footer from './components/Footer';
 
 const App: React.FC = () => {
   return (
@@ -13,10 +14,11 @@ const App: React.FC = () => {
       <Navbar />
       <main className="pt-20">
         <Hero />
-        <AgentsShowcase />
-        <ModelFlexibility />
-        <CustomAgentsIntro />
+        <TwoOSSection />
+        <OSTabSection />
+        <OSFlowSection />
         <Pricing />
+        <MotionHeadlineSection />
       </main>
       <Footer />
     </div>

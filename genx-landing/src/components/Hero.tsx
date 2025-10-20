@@ -2,59 +2,71 @@ import { motion } from 'framer-motion'
 
 const Hero = () => {
   return (
-    <section id="home" className="relative flex min-h-[100vh] items-start justify-center bg-black text-white pt-28 pb-32 md:pt-40 md:pb-40">
+    <section id="home" className="relative flex min-h-[100vh] items-center justify-center bg-white text-gray-900 pt-32 pb-20 md:pt-40">
       <div className="container px-6 text-center">
         <motion.h1
-          className="mx-auto max-w-4xl text-4xl font-extrabold tracking-tight md:text-6xl"
-          initial={{ opacity: 0, y: 24 }}
+          className="mx-auto max-w-4xl font-bold tracking-tight text-gray-900"
+          style={{ fontFamily: "'Neue Haas Display', serif", fontSize: '75px', lineHeight: '0.92' }}
+          initial={{ opacity: 0, y: 32 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
+          transition={{ duration: 0.8, ease: 'easeOut' }}
         >
-          Build custom agentic AI agents that do specific tasks for you
+          Your AI{' '}
+          <span className="bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent">
+            Operating System
+          </span>
+          {' '}to make{' '}
+          <span className="text-gray-900">
+            business easy
+          </span>
         </motion.h1>
 
         <motion.p
-          className="mx-auto mt-8 max-w-2xl text-base/7 text-zinc-300 md:text-lg/8"
-          initial={{ opacity: 0, y: 24 }}
+          className="mx-auto mt-6 max-w-2xl text-base text-gray-600 leading-relaxed md:text-lg"
+          initial={{ opacity: 0, y: 32 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.15, ease: 'easeOut' }}
+          transition={{ duration: 0.8, delay: 0.1, ease: 'easeOut' }}
         >
-          Specialized AI agents for code, business, marketing, and diet.
+          Aviate brings together everything founders need — from validating ideas to launching and scaling businesses — powered by intelligent copilots.
         </motion.p>
 
         {/* CTA Buttons */}
         <motion.div
-          className="mt-6 flex justify-center gap-x-4"
-          initial={{ opacity: 0, y: 24 }}
+          className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center sm:gap-4"
+          initial={{ opacity: 0, y: 32 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.35, ease: 'easeOut' }}
+          transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
         >
           <a
             href="/login"
-            className="inline-flex items-center rounded-full border border-white bg-black px-4 py-2 font-medium text-white transition-colors duration-300 ease-in-out hover:border-black hover:bg-white hover:text-black active:border-black active:bg-white active:text-black"
+            className="inline-flex items-center justify-center rounded-full border border-gray-300 bg-transparent px-6 py-3 text-sm font-medium text-gray-900 transition-all duration-200 hover:bg-gray-900 hover:text-white hover:border-gray-900"
           >
-            Get Started — It's Free
+            Get Started Free
           </a>
           <a
-            href="/#pricing"
-            className="inline-flex items-center rounded-full border border-white bg-black px-4 py-2 font-medium text-white transition-colors duration-300 ease-in-out hover:border-black hover:bg-white hover:text-black active:border-black active:bg-white active:text-black"
+            href="/signup"
+            className="inline-flex items-center justify-center rounded-full border border-gray-300 bg-transparent px-6 py-3 text-sm font-medium text-gray-900 transition-all duration-200 hover:bg-gray-900 hover:text-white hover:border-gray-900"
           >
-            See Pricing
+            Join the Waitlist
           </a>
         </motion.div>
 
+        {/* Dashboard Preview */}
         <motion.div
-          className="mx-auto mt-10 w-full max-w-5xl"
-          initial={{ opacity: 0, y: 24 }}
+          className="mx-auto mt-14 w-full max-w-6xl"
+          initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.25, ease: 'easeOut' }}
+          transition={{ duration: 1, delay: 0.4, ease: 'easeOut' }}
         >
-          <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] shadow-2xl">
-            <div
-              className="aspect-[16/9] w-full bg-cover bg-center"
-              style={{ backgroundImage: "url('/assets/pawel-czerwinski-1A_dO4TFKgM-unsplash.jpg')" }}
-            />
-            <div className="pointer-events-none absolute -inset-px rounded-2xl bg-gradient-to-br from-white/10 to-transparent opacity-20" />
+          <div className="relative">
+            {/* Blank image container */}
+            <div className="relative overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50 border border-gray-200 shadow-2xl" style={{ borderRadius: '20px', aspectRatio: '16 / 9' }}>
+              {/* Placeholder for image */}
+            </div>
+
+            {/* Floating decorative elements */}
+            <div className="pointer-events-none absolute -left-4 -top-4 h-16 w-16 rounded-full bg-orange-500/10 blur-xl"></div>
+            <div className="pointer-events-none absolute -bottom-4 -right-4 h-20 w-20 rounded-full bg-orange-600/10 blur-xl"></div>
           </div>
         </motion.div>
       </div>

@@ -3,15 +3,21 @@ import SocialIcons from './SocialIcons'
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-black text-white">
+    <footer className="bg-white text-gray-900">
       <div className="mx-auto max-w-7xl px-8 py-16">
         <div className="grid grid-cols-1 gap-12 md:grid-cols-12">
-          {/* Left: Watermark brand */}
+          {/* Left: Logo and tagline */}
           <div className="flex flex-col items-start md:col-span-4">
-            <div className="text-5xl font-extrabold tracking-tight text-white/90 md:text-7xl">AgentX</div>
+            <a href="/#home" className="flex items-center">
+              <img 
+                src="/assets/aviatelogo.png" 
+                alt="Aviate" 
+                className="h-24 w-auto"
+              />
+            </a>
             {/* tagline added below logo */}
-            <p className="mt-4 max-w-md text-left text-[13px] leading-relaxed text-zinc-400">
-              Your personal army of AI specialists, powered by the latest LLMs and designed for real-world productivity.
+            <p className="mt-3 max-w-sm text-left text-sm leading-relaxed text-gray-600">
+              Your AI copilot to build and grow. Aviate brings together everything founders need — from validating ideas to launching and scaling businesses.
             </p>
           </div>
 
@@ -19,11 +25,11 @@ const Footer: React.FC = () => {
           <div className="md:col-span-5 lg:col-span-6">
             <div className="grid grid-cols-2 gap-10 text-center md:text-left">
               <div>
-                <h4 className="text-sm font-semibold">Explore</h4>
-                <ul className="mt-4 space-y-3 text-zinc-400">
+                <h4 className="text-sm font-semibold text-gray-900">Explore</h4>
+                <ul className="mt-4 space-y-3 text-gray-600">
                   {[
                     { label: 'How it works', href: '/#home' },
-                    { label: 'Use Cases', href: '/#agents' },
+                    { label: 'Use Cases', href: '/#product' },
                     { label: 'Company', href: '/#home' },
                     { label: 'About', href: '/about' },
                     { label: 'Pricing', href: '/#pricing' },
@@ -31,7 +37,7 @@ const Footer: React.FC = () => {
                     <li key={l.label}>
                       <a
                         href={l.href}
-                        className="transition-colors hover:text-white"
+                        className="transition-colors hover:text-gray-900"
                       >
                         {l.label}
                       </a>
@@ -41,16 +47,14 @@ const Footer: React.FC = () => {
               </div>
 
               <div>
-                <h4 className="text-sm font-semibold">Agents</h4>
-                <ul className="mt-4 space-y-3 text-zinc-400">
+                <h4 className="text-sm font-semibold text-gray-900">AI Operating Systems</h4>
+                <ul className="mt-4 space-y-3 text-gray-600">
                   {[
-                    { label: 'CodeX', href: '/codex' },
-                    { label: 'MarketX', href: '/marketx' },
-                    { label: 'BusinessX', href: '/businessx' },
-                    { label: 'DietX', href: '/dietx' },
+                    { label: 'FoundryOS', href: '/foundryos' },
+                    { label: 'LaunchOS', href: '/launchos' },
                   ].map((l) => (
                     <li key={l.label}>
-                      <a href={l.href} className="transition-colors hover:text-white">
+                      <a href={l.href} className="transition-colors hover:text-gray-900">
                         {l.label}
                       </a>
                     </li>
@@ -60,13 +64,13 @@ const Footer: React.FC = () => {
             </div>
           </div>
 
-          {/* Right column no longer shows social/copyright */}
+          {/* Right column */}
           <div className="md:col-span-3" />
         </div>
 
         {/* Centered bottom: copyright then social icons */}
         <div className="mt-12 text-center">
-          <p className="text-xs text-zinc-400">© 2025 AgentX. All rights reserved.</p>
+          <p className="text-xs text-gray-500">© 2025 Aviate. All rights reserved.</p>
           <div className="mt-4 flex justify-center">
             <SocialIcons />
           </div>

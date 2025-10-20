@@ -51,6 +51,7 @@ export const supabase = /** @type {import('@supabase/supabase-js').SupabaseClien
     ? makeShim('Supabase not configured: set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY')
     : createClient(supabaseUrl, supabaseAnonKey, {
         auth: {
+          redirectTo: window.location.origin,
           persistSession: true,
           autoRefreshToken: true,
           detectSessionInUrl: true,

@@ -6,10 +6,10 @@ import { useNavigate } from 'react-router-dom'
 import { FiCode, FiBriefcase, FiTrendingUp, FiHeart } from 'react-icons/fi'
 
 const AGENTS = [
-  { slug: 'codex', name: 'CodeX', desc: 'Your coding companion', icon: <FiCode className="h-5 w-5" /> },
+  // { slug: 'codex', name: 'CodeX', desc: 'Your coding companion', icon: <FiCode className="h-5 w-5" /> },
   { slug: 'businessx', name: 'BusinessX', desc: 'Ops and strategy helper', icon: <FiBriefcase className="h-5 w-5" /> },
   { slug: 'marketx', name: 'MarketX', desc: 'Marketing and growth', icon: <FiTrendingUp className="h-5 w-5" /> },
-  { slug: 'dietx', name: 'DietX', desc: 'Meals, macros, guidance', icon: <FiHeart className="h-5 w-5" /> },
+  // { slug: 'dietx', name: 'DietX', desc: 'Meals, macros, guidance', icon: <FiHeart className="h-5 w-5" /> },
 ] as const
 
 type AgentSlug = typeof AGENTS[number]['slug']
@@ -47,7 +47,7 @@ const SetupModal: React.FC<SetupModalProps> = ({ open, onClose, agent, onSaved }
     setSaving(true)
     try {
       const config: any = { notes, profession, purpose }
-      if (agent.slug === 'codex') config.devLevel = devLevel
+      // if (agent.slug === 'codex') config.devLevel = devLevel
       const payload = { user_id: user.id, slug: agent.slug, name: name || agent.name, config }
       const { error } = await supabase.from('agents').upsert(payload, { onConflict: 'user_id,slug' })
       if (!error) {
@@ -113,7 +113,7 @@ const SetupModal: React.FC<SetupModalProps> = ({ open, onClose, agent, onSaved }
                     className="w-full rounded-md border border-white/10 bg-black px-3 py-2 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-600"
                   />
                 </div>
-                {agent.slug === 'codex' && (
+                {/* {agent.slug === 'codex' && (
                   <div>
                     <label className="mb-1 block text-xs text-zinc-400">Experience level (CodeX)</label>
                     <select
@@ -126,7 +126,7 @@ const SetupModal: React.FC<SetupModalProps> = ({ open, onClose, agent, onSaved }
                       <option value="pro">Pro dev</option>
                     </select>
                   </div>
-                )}
+                )} */}
               </div>
 
               <div>

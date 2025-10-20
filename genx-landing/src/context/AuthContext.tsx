@@ -77,8 +77,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     let mounted = true
+
     const init = async () => {
-      setLoading(true)
+      // Set loading to false immediately so page renders
+      setLoading(false)
+      
       try {
         const { data } = await supabase.auth.getSession()
         if (!mounted) return
@@ -93,8 +96,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       } catch (e) {
         console.error('getSession error', e)
-      } finally {
-        if (mounted) setLoading(false)
+        setUser(null)
+        setProfile(null)
       }
     }
     init()

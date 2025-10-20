@@ -1,9 +1,10 @@
 import React from 'react';
 import { FiArrowUpRight } from 'react-icons/fi';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 
 const CustomAgentsIntro: React.FC = () => {
   const { user } = useAuth();
+  
   return (
     <section className="bg-black py-24 text-white mt-16 md:mt-[5.5rem]">
       <div className="mx-auto max-w-7xl px-6">
@@ -21,7 +22,7 @@ const CustomAgentsIntro: React.FC = () => {
                 href={user ? "/app/agents" : "/signup"}
                 className="inline-flex items-center gap-x-2 rounded-full border border-white bg-black px-5 py-2 text-sm font-semibold text-white shadow-sm transition-colors duration-300 ease-in-out hover:border-black hover:bg-white hover:text-black"
               >
-                Get Started
+                {user ? "Go to My Agents" : "Get Started"}
                 <FiArrowUpRight className="h-4 w-4" />
               </a>
             </div>
