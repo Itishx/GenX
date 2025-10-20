@@ -12,11 +12,11 @@ const Navbar: React.FC = () => {
       <nav className="w-full border-b border-gray-100 bg-white shadow-sm backdrop-blur-sm">
         <div className="relative mx-auto flex max-w-7xl items-center px-6 py-4">
           {/* Left: Logo */}
-          <a href="/#home" className="flex items-center">
+          <a href="/#home" className="flex items-center -ml-2">
             <img 
               src="/assets/aviatelogo.png" 
               alt="Aviate" 
-              className="h-12 w-auto"
+              className="h-9 w-auto -mb-1"
             />
           </a>
 

@@ -126,7 +126,7 @@ const OSFlowSection = () => {
 
         {/* Flow Cards Container */}
         <motion.div
-          className="relative flex flex-col md:flex-row items-center justify-center gap-8 md:gap-40 mb-24"
+          className="relative mx-auto flex flex-col md:flex-row items-center justify-center gap-6 md:gap-2 lg:gap-4 mb-24 w-full"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ duration: 0.8 }}
@@ -142,7 +142,7 @@ const OSFlowSection = () => {
             onHoverStart={() => setHoveredCard('foundry')}
             onHoverEnd={() => setHoveredCard(null)}
             viewport={{ once: true, amount: 0.3 }}
-            className="w-full md:w-80 rounded-2xl bg-white border border-gray-200 p-8 shadow-md hover:shadow-xl transition-all"
+            className="w-full md:w-80 flex-shrink-0 self-center rounded-2xl bg-white border border-gray-200 p-8 shadow-md hover:shadow-xl transition-all"
             style={{ boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)' }}
           >
             {/* Icon Placeholder */}
@@ -174,50 +174,41 @@ const OSFlowSection = () => {
             </div>
           </motion.div>
 
-          {/* Absolute positioned connector that originates from FoundryOS edge and enters LaunchOS edge */}
+          {/* Connector Container - Positioned absolutely relative to parent */}
           <motion.div
-            className="absolute hidden md:block left-1/2 top-1/2 -translate-y-1/2 pointer-events-none"
-            style={{ width: '200px', marginLeft: '-100px' }}
+            className="relative hidden md:flex items-center justify-center flex-shrink-0"
+            style={{ width: '200px', height: '100px' }}
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.3 }}
             viewport={{ once: true, amount: 0.5 }}
           >
-            {/* Connector Text */}
-            <motion.p
-              variants={textVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, amount: 0.5 }}
-              className="absolute -top-8 left-1/2 -translate-x-1/2 text-xs font-semibold text-gray-600 whitespace-nowrap text-center"
-              style={{ fontFamily: "'Neue Haas Display', serif" }}
-            >
-              Build → Launch → Grow
-            </motion.p>
-
-            {/* Step-style connector originating from card edge to card edge */}
+            {/* Straight connector line */}
             <svg
-              className="w-full h-20"
-              viewBox="0 0 200 80"
+              className="w-full h-full"
+              viewBox="0 0 200 100"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
+              preserveAspectRatio="none"
             >
-              {/* Perpendicular step connector: starts at x=0 (FoundryOS right edge), ends at x=200 (LaunchOS left edge) */}
-              <motion.path
-                d="M 0 25 L 85 25 Q 92 25 92 32 L 92 48 Q 92 55 99 55 L 200 55"
+              {/* Straight line from left box to right box */}
+              <motion.line
+                x1="0"
+                y1="50"
+                x2="200"
+                y2="50"
                 stroke="#FF6B35"
                 strokeWidth="1.5"
                 strokeLinecap="round"
-                fill="none"
                 initial={{ pathLength: 0, opacity: 0 }}
                 whileInView={{ pathLength: 1, opacity: 1 }}
                 transition={{ duration: 1.5, ease: "easeInOut" }}
                 viewport={{ once: true }}
               />
               
-              {/* Arrowhead at the end (touching LaunchOS) */}
+              {/* Arrowhead at the end */}
               <motion.path
-                d="M 193 52 L 200 55 L 193 58"
+                d="M 190 47 L 200 50 L 190 53"
                 stroke="#FF6B35"
                 strokeWidth="1.5"
                 strokeLinecap="round"
@@ -237,7 +228,7 @@ const OSFlowSection = () => {
                 <animateMotion
                   dur="2.5s"
                   repeatCount="indefinite"
-                  path="M 0 25 L 85 25 Q 92 25 92 32 L 92 48 Q 92 55 99 55 L 200 55"
+                  path="M 0 50 L 200 50"
                 />
                 <animate
                   attributeName="opacity"
@@ -273,7 +264,7 @@ const OSFlowSection = () => {
             onHoverStart={() => setHoveredCard('launch')}
             onHoverEnd={() => setHoveredCard(null)}
             viewport={{ once: true, amount: 0.3 }}
-            className="w-full md:w-80 rounded-2xl bg-white border border-gray-200 p-8 shadow-md hover:shadow-xl transition-all"
+            className="w-full md:w-80 flex-shrink-0 self-center rounded-2xl bg-white border border-gray-200 p-8 shadow-md hover:shadow-xl transition-all"
             style={{ boxShadow: '0 4px 12px rgba(0, 0, 0, 0.06)' }}
           >
             {/* Icon Placeholder */}

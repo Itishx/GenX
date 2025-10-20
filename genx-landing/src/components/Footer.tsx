@@ -7,12 +7,12 @@ const Footer: React.FC = () => {
       <div className="mx-auto max-w-7xl px-8 py-16">
         <div className="grid grid-cols-1 gap-12 md:grid-cols-12">
           {/* Left: Logo and tagline */}
-          <div className="flex flex-col items-start md:col-span-4">
+          <div className="flex flex-col items-start md:col-span-4 md:pl-8">
             <a href="/#home" className="flex items-center">
               <img 
                 src="/assets/aviatelogo.png" 
                 alt="Aviate" 
-                className="h-24 w-auto"
+                className="h-24 w-auto md:h-28"
               />
             </a>
             {/* tagline added below logo */}
@@ -22,7 +22,7 @@ const Footer: React.FC = () => {
           </div>
 
           {/* Center: Link columns */}
-          <div className="md:col-span-5 lg:col-span-6">
+          <div className="md:col-span-5 lg:col-span-6 md:pl-8">
             <div className="grid grid-cols-2 gap-10 text-center md:text-left">
               <div>
                 <h4 className="text-sm font-semibold text-gray-900">Explore</h4>
