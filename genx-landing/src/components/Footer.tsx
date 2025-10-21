@@ -2,77 +2,127 @@ import React from 'react'
 import SocialIcons from './SocialIcons'
 
 const Footer: React.FC = () => {
+  const platformLinks = [
+    { label: 'Overview', href: '/#home' },
+    { label: 'How it Works', href: '/#home' },
+    { label: 'Use Cases', href: '/#product' },
+    { label: 'Pricing', href: '/#pricing' },
+    { label: 'Documentation', href: '#' },
+  ]
+
+  const companyLinks = [
+    { label: 'About', href: '/about' },
+    { label: 'Careers', href: '/coming-soon' },
+    { label: 'Blog', href: '#' },
+    { label: 'Contact', href: '#' },
+  ]
+
+  const osLinks = [
+    { label: 'FoundryOS', href: '/foundryos' },
+    { label: 'LaunchOS', href: '/launchos' },
+  ]
+
   return (
-    <footer className="bg-white text-gray-900">
-      <div className="mx-auto max-w-7xl px-8 py-16">
-        <div className="grid grid-cols-1 gap-12 md:grid-cols-12">
-          {/* Left: Logo and tagline */}
-          <div className="flex flex-col items-start md:col-span-4 md:pl-8">
-            <a href="/#home" className="flex items-center">
+    <footer className="bg-white">
+      {/* Main Footer Content */}
+      <div className="mx-auto max-w-7xl px-6 py-16">
+        {/* 4-Column Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+          {/* Column 1: Brand & Social */}
+          <div className="flex flex-col -ml-2">
+            <a href="/#home" className="inline-flex items-center mb-6">
               <img 
                 src="/assets/aviatelogo.png" 
                 alt="Aviate" 
-                className="h-24 w-auto md:h-28"
+                className="h-16 w-auto"
               />
             </a>
-            {/* tagline added below logo */}
-            <p className="mt-3 max-w-sm text-left text-sm leading-relaxed text-gray-600">
-              Your AI copilot to build and grow. Aviate brings together everything founders need — from validating ideas to launching and scaling businesses.
+            <p className="text-sm leading-relaxed text-[#555555] mb-8">
+              Your AI copilot to build and grow. Aviate brings together everything founders need.
             </p>
-          </div>
-
-          {/* Center: Link columns */}
-          <div className="md:col-span-5 lg:col-span-6 md:pl-8">
-            <div className="grid grid-cols-2 gap-10 text-center md:text-left">
-              <div>
-                <h4 className="text-sm font-semibold text-gray-900">Explore</h4>
-                <ul className="mt-4 space-y-3 text-gray-600">
-                  {[
-                    { label: 'How it works', href: '/#home' },
-                    { label: 'Use Cases', href: '/#product' },
-                    { label: 'Company', href: '/#home' },
-                    { label: 'About', href: '/about' },
-                    { label: 'Pricing', href: '/#pricing' },
-                  ].map((l) => (
-                    <li key={l.label}>
-                      <a
-                        href={l.href}
-                        className="transition-colors hover:text-gray-900"
-                      >
-                        {l.label}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div>
-                <h4 className="text-sm font-semibold text-gray-900">AI Operating Systems</h4>
-                <ul className="mt-4 space-y-3 text-gray-600">
-                  {[
-                    { label: 'FoundryOS', href: '/foundryos' },
-                    { label: 'LaunchOS', href: '/launchos' },
-                  ].map((l) => (
-                    <li key={l.label}>
-                      <a href={l.href} className="transition-colors hover:text-gray-900">
-                        {l.label}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+            <div className="flex gap-4">
+              <SocialIcons />
             </div>
           </div>
 
-          {/* Right column */}
-          <div className="md:col-span-3" />
-        </div>
+          {/* Column 2: Platform */}
+          <div className="flex flex-col">
+            <h3 className="text-sm font-bold text-[#333333] mb-6">Platform</h3>
+            <ul className="space-y-4">
+              {platformLinks.map((link) => (
+                <li key={link.label}>
+                  <a
+                    href={link.href}
+                    className="text-sm text-[#555555] hover:text-[#111111] transition-colors duration-200"
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-        {/* Centered bottom: copyright then social icons */}
-        <div className="mt-12 text-center">
-          <p className="text-xs text-gray-500">© 2025 Aviate. All rights reserved.</p>
-          <div className="mt-4 flex justify-center">
-            <SocialIcons />
+          {/* Column 3: Company */}
+          <div className="flex flex-col">
+            <h3 className="text-sm font-bold text-[#333333] mb-6">Company</h3>
+            <ul className="space-y-4">
+              {companyLinks.map((link) => (
+                <li key={link.label}>
+                  <a
+                    href={link.href}
+                    className="text-sm text-[#555555] hover:text-[#111111] transition-colors duration-200"
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Column 4: AI Operating Systems */}
+          <div className="flex flex-col">
+            <h3 className="text-sm font-bold text-[#333333] mb-6">AI Operating Systems</h3>
+            <ul className="space-y-4">
+              {osLinks.map((link) => (
+                <li key={link.label}>
+                  <a
+                    href={link.href}
+                    className="text-sm text-[#555555] hover:text-[#111111] transition-colors duration-200"
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Bar */}
+      <div className="border-t border-[#eaeaea]">
+        <div className="mx-auto max-w-7xl px-6 py-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            {/* Left: Copyright */}
+            <p className="text-sm text-[#888888]">
+              © 2025 Aviate. All rights reserved.
+            </p>
+
+            {/* Right: Legal Links */}
+            <div className="flex gap-6">
+              <a
+                href="/privacy"
+                className="text-sm text-[#888888] hover:text-[#111111] transition-colors duration-200"
+              >
+                Privacy Policy
+              </a>
+              <span className="text-[#eaeaea]">|</span>
+              <a
+                href="/terms"
+                className="text-sm text-[#888888] hover:text-[#111111] transition-colors duration-200"
+              >
+                Terms of Service
+              </a>
+            </div>
           </div>
         </div>
       </div>

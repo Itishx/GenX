@@ -28,7 +28,7 @@ const MotionHeadlineSection = () => {
   }
 
   return (
-    <section className="relative w-full overflow-hidden bg-white py-24 md:py-32">
+    <section className="relative w-full overflow-hidden bg-white py-12 md:py-16">
       <motion.div
         className="mx-auto flex max-w-4xl flex-col items-start justify-center px-6 text-left"
         initial={{ opacity: 0 }}

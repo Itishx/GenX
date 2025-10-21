@@ -11,9 +11,13 @@ module.exports = {
       screens: { '2xl': '1280px' },
     },
     extend: {
+      fontFamily: {
+        sans: ['Neue Haas Display', 'Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial'],
+        display: ['Neue Haas Display', 'serif'],
+      },
       colors: {
-        primary: '#4F46E5', // Example primary color
-        secondary: '#FBBF24', // Example secondary color
+        primary: '#4F46E5',
+        secondary: '#FBBF24',
       },
     },
   },

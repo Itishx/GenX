@@ -64,14 +64,20 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
               {/* Redirect /app to Chat by default */}
               <Route index element={<Navigate to="chat" replace />} />
               <Route path="chat" element={<AppChat />} />
-              <Route path="agents">
-                <Route index element={<MyAgents />} />
-                {/* <Route path="codex" element={<AppCodeX />} /> */}
-                <Route path="businessx" element={<AppBusinessX />} />
-                <Route path="marketx" element={<AppMarketX />} />
-                {/* <Route path="dietx" element={<AppDietX />} /> */}
-              </Route>
               <Route path="subscriptions" element={<Subscriptions />} />
+            </Route>
+
+            {/* Agents page without sidebar */}
+            <Route
+              path="/app/agents"
+              element={
+                <ProtectedRoute>
+                  <MyAgents />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="businessx" element={<AppBusinessX />} />
+              <Route path="marketx" element={<AppMarketX />} />
             </Route>
           </Routes>
         </AuthProvider>

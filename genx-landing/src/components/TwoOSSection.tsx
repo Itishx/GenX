@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 
 const TwoOSSection = () => {
   return (
-    <section id="os" className="relative w-full bg-white py-24 md:py-24 pb-0">
+    <section id="product" className="relative w-full bg-white py-24 md:py-16 pb-0">
       <div className="mx-auto flex max-w-full flex-col items-center justify-center px-6">
         {/* Centered text container with max-width */}
         <motion.div
@@ -12,6 +12,9 @@ const TwoOSSection = () => {
           transition={{ duration: 0.8, ease: 'easeOut' }}
           viewport={{ once: true, amount: 0.3 }}
         >
+          {/* Label */}
+          <p className="text-sm text-[#777777] uppercase tracking-wide mb-3 font-medium">Product</p>
+
           {/* Heading */}
           <h2
             className="font-bold text-gray-900"

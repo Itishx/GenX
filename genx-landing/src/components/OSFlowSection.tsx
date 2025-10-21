@@ -78,7 +78,8 @@ const OSFlowSection = () => {
               lineHeight: '1.1',
             }}
           >
-            From Idea to Launch{' '}
+            From Idea to Launch
+            <br />
             <span className="bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent">
               — Powered by Aviate
             </span>
@@ -309,7 +310,7 @@ const OSFlowSection = () => {
             href="/signup"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="px-8 py-4 rounded-full border-2 border-gray-900 bg-white text-gray-900 font-semibold text-lg transition-all hover:bg-gray-900 hover:text-white hover:shadow-xl"
+            className="px-6 py-2 rounded-full border-2 border-gray-900 bg-white text-gray-900 font-semibold text-base transition-all hover:bg-gray-900 hover:text-white hover:shadow-xl"
             style={{ fontFamily: "'Neue Haas Display', serif" }}
           >
             Get Started
