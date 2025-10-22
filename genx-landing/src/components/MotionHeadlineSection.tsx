@@ -15,18 +15,6 @@ const MotionHeadlineSection = () => {
     }),
   }
 
-  const aviate = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        duration: 1,
-        ease: 'easeOut',
-        delay: 0.9,
-      },
-    },
-  }
-
   return (
     <section className="relative w-full overflow-hidden bg-white py-12 md:py-16">
       <motion.div
@@ -94,13 +82,14 @@ const MotionHeadlineSection = () => {
             >
               —{' '}
               <motion.span
-                variants={aviate}
-                initial="hidden"
-                whileInView="visible"
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                transition={{ duration: 1, ease: 'easeOut', delay: 0.9 }}
                 viewport={{ once: true, amount: 0.5 }}
-                className="relative inline-block bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent"
+                className="relative inline-block bg-gradient-to-r from-[#ff5a00] via-[#ffb347] to-[#ff5a00] bg-clip-text text-transparent"
                 style={{
                   backgroundSize: '200% 100%',
+                  animation: 'slowShimmer 8s ease-in-out infinite',
                 }}
               >
                 Aviate
