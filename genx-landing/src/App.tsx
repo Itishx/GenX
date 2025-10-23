@@ -6,6 +6,7 @@ import OSTabSection from './components/OSTabSection';
 import OSFlowSection from './components/OSFlowSection';
 import Pricing from './components/Pricing';
 import IntelligenceSection from './components/IntelligenceSection';
+import MetricsSection from './components/MetricsSection';
 import FAQSection from './components/FAQSection';
 import MotionHeadlineSection from './components/MotionHeadlineSection';
 import Footer from './components/Footer';
@@ -17,6 +18,7 @@ const App: React.FC = () => {
       <main className="pt-20">
         <Hero />
         <IntelligenceSection />
+        <MetricsSection />
         <TwoOSSection />
         <OSTabSection />
         <OSFlowSection />

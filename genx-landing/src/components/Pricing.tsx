@@ -16,13 +16,13 @@ const PRICING_PLANS: Record<TabType, PricingPlan[]> = {
     {
       name: 'Monthly',
       subheading: 'Flexible billing for FoundryOS',
-      price: 17,
+      price: 21,
       period: 'month',
     },
     {
       name: 'Annual',
       subheading: 'Best value for FoundryOS',
-      price: 180,
+      price: 222,
       period: 'year',
       savings: 12,
     },
@@ -31,13 +31,13 @@ const PRICING_PLANS: Record<TabType, PricingPlan[]> = {
     {
       name: 'Monthly',
       subheading: 'Flexible billing for LaunchOS',
-      price: 17,
+      price: 21,
       period: 'month',
     },
     {
       name: 'Annual',
       subheading: 'Best value for LaunchOS',
-      price: 180,
+      price: 222,
       period: 'year',
       savings: 12,
     },
@@ -46,13 +46,13 @@ const PRICING_PLANS: Record<TabType, PricingPlan[]> = {
     {
       name: 'Monthly',
       subheading: 'All agents included, billed monthly',
-      price: 34,
+      price: 42,
       period: 'month',
     },
     {
       name: 'Annual',
       subheading: 'Save 20% with annual billing',
-      price: 360,
+      price: 403,
       period: 'year',
       savings: 20,
     },
