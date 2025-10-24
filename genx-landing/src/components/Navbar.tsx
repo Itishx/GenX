@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import ProfileDropdown from './ProfileDropdown'
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -40,9 +41,7 @@ const Navbar: React.FC = () => {
                   >
                     {hasAgents ? 'Dashboard' : 'Get Started'}
                   </Link>
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-900 text-sm font-medium text-white">
-                    {user.email?.charAt(0).toUpperCase()}
-                  </div>
+                  <ProfileDropdown />
                 </>
               ) : (
                 <>

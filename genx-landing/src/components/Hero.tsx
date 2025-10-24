@@ -58,16 +58,27 @@ const Hero = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.4, ease: 'easeOut' }}
         >
-          <div className="relative">
-            {/* Blank image container */}
+          <motion.div 
+            className="relative"
+            whileHover={{ scale: 1.02 }}
+            transition={{ duration: 0.3, ease: 'easeOut', type: 'spring', bounce: 0.3 }}
+            style={{ transformOrigin: 'center' }}
+          >
+            {/* Image container */}
             <div className="relative overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50 border border-gray-200 shadow-2xl" style={{ borderRadius: '20px', aspectRatio: '16 / 9' }}>
-              {/* Placeholder for image */}
+              <img
+                src="/assets/mainhero.png"
+                alt="Aviate Dashboard Preview"
+                className="h-full w-full object-cover"
+                style={{ objectPosition: 'left center', willChange: 'transform' }}
+                loading="lazy"
+              />
             </div>
 
             {/* Floating decorative elements */}
-            <div className="pointer-events-none absolute -left-4 -top-4 h-16 w-16 rounded-full bg-orange-500/10 blur-xl"></div>
-            <div className="pointer-events-none absolute -bottom-4 -right-4 h-20 w-20 rounded-full bg-orange-600/10 blur-xl"></div>
-          </div>
+            <div className="pointer-events-none absolute -left-4 -top-4 h-16 w-16 rounded-full bg-orange-500/10 blur-3xl"></div>
+            <div className="pointer-events-none absolute -bottom-4 -right-4 h-20 w-20 rounded-full bg-orange-600/10 blur-3xl"></div>
+          </motion.div>
         </motion.div>
       </div>
     </section>
