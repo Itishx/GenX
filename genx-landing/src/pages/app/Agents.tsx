@@ -195,12 +195,12 @@ const MyAgents: React.FC = () => {
   // Card configuration with routes
   const configureCards = AGENTS.map(a => ({
     ...a,
-    primaryBtnLabel: configured[a.slug] ? 'Open Workspace' : 'Configure',
-    primaryBtnOnClick: configured[a.slug] 
-      ? () => navigate(`/app/agents/${a.slug}`)
-      : () => setSetupFor({ slug: a.slug, name: a.name, osName: a.osName }),
+    primaryBtnLabel: 'Get Started',
+    primaryBtnOnClick: a.slug === 'businessx' 
+      ? () => navigate('/foundryos/get-started')
+      : () => navigate('/launchos/get-started'),
     secondaryBtnLabel: 'Learn More',
-    secondaryBtnHref: `/learn/${a.slug}`,
+    secondaryBtnHref: a.slug === 'businessx' ? '/foundryos' : '/launchos',
   }))
 
   return (

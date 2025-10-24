@@ -27,6 +27,8 @@ import AppMarketX from './pages/app/agents/MarketX'
 import BusinessXLanding from './pages/landing/BusinessX'
 import MarketXLanding from './pages/landing/MarketX'
 // import DietXLanding from './pages/landing/DietX'
+import FoundryOSGetStarted from './pages/landing/FoundryOSGetStarted'
+import LaunchOSGetStarted from './pages/landing/LaunchOSGetStarted'
 import About from './pages/About'
 
 const ScrollToTop = () => {
@@ -48,9 +50,13 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 
             {/* Public individual agent pages */}
             {/* <Route path="/codex" element={<CodexLanding />} /> */}
-            <Route path="/businessx" element={<BusinessXLanding />} />
-            <Route path="/marketx" element={<MarketXLanding />} />
+            <Route path="/foundryos" element={<BusinessXLanding />} />
+            <Route path="/launchos" element={<MarketXLanding />} />
             {/* <Route path="/dietx" element={<DietXLanding />} /> */}
+
+            {/* Get started pages */}
+            <Route path="/foundryos/get-started" element={<FoundryOSGetStarted />} />
+            <Route path="/launchos/get-started" element={<LaunchOSGetStarted />} />
 
             {/* Protected app routes */}
             <Route

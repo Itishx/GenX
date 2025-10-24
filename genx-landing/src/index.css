@@ -36,15 +36,27 @@ a {
 }
 
 .hero {
-    @apply flex items-center justify-center h-screen text-center bg-gradient-to-r from-blue-500 to-purple-600 text-white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    text-align: center;
+    background: linear-gradient(to right, #3b82f6, #a855f7);
+    color: white;
 }
 
 .footer {
-    @apply bg-gray-800 text-white py-6;
+    background-color: #1f2937;
+    color: white;
+    padding: 1.5rem;
 }
 
 .footer a {
-    @apply text-gray-400 hover:text-white;
+    color: #9ca3af;
+}
+
+.footer a:hover {
+    color: white;
 }
 
 @keyframes shimmer {
@@ -66,25 +78,43 @@ a {
 }
 
 .metrics {
-  @apply py-20 bg-black text-white;
+  padding: 5rem 0;
+  background-color: black;
+  color: white;
 }
 
 .metrics-container {
-  @apply max-w-7xl mx-auto px-8;
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 2rem;
 }
 
 .metrics-grid {
-  @apply grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-16;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 3rem;
+}
+
+@media (min-width: 768px) {
+  .metrics-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4rem;
+  }
 }
 
 .metric-item {
-  @apply text-center flex flex-col items-center justify-center;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .metric-number {
-  @apply text-6xl md:text-7xl font-bold mb-4;
-  font-family: 'Neue Haas Display', serif;
+  font-size: 3.75rem;
   font-weight: 700;
+  margin-bottom: 1rem;
+  font-family: 'Neue Haas Display', serif;
   letter-spacing: -2px;
   background: linear-gradient(135deg, #ff5a00 0%, #ffb347 50%, #ff5a00 100%);
   -webkit-background-clip: text;
@@ -92,16 +122,49 @@ a {
   background-clip: text;
 }
 
+@media (min-width: 768px) {
+  .metric-number {
+    font-size: 4.5rem;
+  }
+}
+
 .metric-number-large {
-  @apply text-5xl md:text-6xl font-bold mb-2 text-[#ff5a00];
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: #ff5a00;
+}
+
+@media (min-width: 768px) {
+  .metric-number-large {
+    font-size: 3.75rem;
+  }
 }
 
 .metric-heading {
-  @apply text-lg md:text-xl font-semibold text-white mb-2;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 0.5rem;
   font-family: 'Neue Haas Display', serif;
 }
 
+@media (min-width: 768px) {
+  .metric-heading {
+    font-size: 1.25rem;
+  }
+}
+
 .metric-subheading {
-  @apply text-sm md:text-base text-gray-400 leading-relaxed max-w-xs;
+  font-size: 0.875rem;
+  color: #9ca3af;
+  line-height: 1.5;
+  max-width: 20rem;
   font-family: 'Inter', ui-sans-serif, system-ui;
+}
+
+@media (min-width: 768px) {
+  .metric-subheading {
+    font-size: 1rem;
+  }
 }
