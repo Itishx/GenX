@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { FiArrowLeft, FiDownload } from 'react-icons/fi'
+import { FiArrowLeft, FiDownload, FiShare2 } from 'react-icons/fi'
 
 interface StageNavbarProps {
   stageName: string
@@ -80,34 +80,64 @@ const StageNavbar: React.FC<StageNavbarProps> = ({
   }
 
   return (
-    <div className="fixed inset-x-0 top-0 z-30 border-b border-gray-100 bg-white shadow-sm">
+    <div className="fixed inset-x-0 top-0 z-30 border-b border-gray-200/50 bg-white/95 backdrop-blur-md shadow-sm">
       <div className="h-20 px-6 flex items-center justify-between">
-        {/* Left: Back button + Stage name */}
+        {/* Left: Back button + Stage info */}
         <div className="flex items-center gap-4">
           <Link
             to="/foundryos/get-started"
-            className="flex items-center justify-center w-10 h-10 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
+            className="flex items-center justify-center w-10 h-10 rounded-lg text-gray-600 hover:bg-gray-100 transition-all hover:shadow-sm"
             title="Back to FoundryOS"
           >
             <FiArrowLeft className="w-5 h-5" />
           </Link>
-          <div>
-            <h1 className="text-lg font-semibold text-gray-900">{stageName}</h1>
-            <p className="text-xs text-gray-500 mt-0.5">Stage Workspace</p>
-          </div>
+          
+          {/* Tab Bar Style Header */}
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="flex items-center gap-1"
+          >
+            <div className="flex flex-col">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-gradient-to-br from-orange-400 to-orange-600" />
+                <h1 className="text-base font-display font-semibold text-gray-900">{stageName}</h1>
+              </div>
+              <p className="text-xs text-gray-500 mt-0.5 ml-3">Stage Workspace</p>
+            </div>
+          </motion.div>
         </div>
 
-        {/* Right: Export button */}
-        <motion.button
-          onClick={handleExportPDF}
-          disabled={isExporting}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-gray-700 text-sm font-medium transition-all hover:border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        {/* Right: Action buttons */}
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
+          className="flex items-center gap-2"
         >
-          <FiDownload className="w-4 h-4" />
-          {isExporting ? 'Exporting...' : 'Export PDF'}
-        </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="flex items-center justify-center w-10 h-10 rounded-lg text-gray-600 hover:bg-gray-100 transition-all hover:shadow-sm"
+            title="Share workspace"
+          >
+            <FiShare2 className="w-5 h-5" />
+          </motion.button>
+          
+          <div className="w-px h-6 bg-gray-200" />
+          
+          <motion.button
+            onClick={handleExportPDF}
+            disabled={isExporting}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-700 text-sm font-semibold transition-all hover:border-orange-200 hover:bg-orange-50/50 hover:text-orange-700 hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <FiDownload className="w-4 h-4" />
+            <span className="hidden sm:inline">{isExporting ? 'Exporting...' : 'Export'}</span>
+          </motion.button>
+        </motion.div>
       </div>
     </div>
   )
