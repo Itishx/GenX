@@ -15,4 +15,7 @@ export default defineConfig({
       '@': '/src',
     },
   },
+  preview: {
+    port: 3000,
+  },
 });

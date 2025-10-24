@@ -89,6 +89,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
               <Route path="businessx" element={<AppBusinessX />} />
               <Route path="marketx" element={<AppMarketX />} />
             </Route>
+
+            {/* Catch-all route - redirect to home for undefined paths */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </AuthProvider>
       </BrowserRouter>
