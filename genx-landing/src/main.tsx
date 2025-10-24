@@ -24,8 +24,6 @@ import AppMarketX from './pages/app/agents/MarketX'
 
 // Public agent landing pages
 // import CodexLanding from './pages/landing/Codex'
-import BusinessXLanding from './pages/landing/BusinessX'
-import MarketXLanding from './pages/landing/MarketX'
 // import DietXLanding from './pages/landing/DietX'
 import FoundryOSGetStarted from './pages/landing/FoundryOSGetStarted'
 import LaunchOSGetStarted from './pages/landing/LaunchOSGetStarted'
