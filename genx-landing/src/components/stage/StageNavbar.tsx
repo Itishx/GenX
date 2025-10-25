@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { FiArrowLeft, FiDownload, FiShare2 } from 'react-icons/fi'
+import { FiArrowLeft, FiDownload, FiShare2, FiUsers } from 'react-icons/fi'
 
 interface StageNavbarProps {
   stageName: string
@@ -80,49 +80,51 @@ const StageNavbar: React.FC<StageNavbarProps> = ({
   }
 
   return (
-    <div className="fixed inset-x-0 top-0 z-30 border-b border-gray-200/50 bg-white/95 backdrop-blur-md shadow-sm">
-      <div className="h-20 px-6 flex items-center justify-between">
-        {/* Left: Back button + Stage info */}
-        <div className="flex items-center gap-4">
+    <div className="fixed inset-x-0 top-0 z-30 border-b border-[#e8e8e8] bg-white/98 backdrop-blur-sm shadow-sm">
+      <div className="h-20 px-8 flex items-center justify-between max-w-7xl mx-auto w-full">
+        {/* Left: Breadcrumb */}
+        <motion.div
+          initial={{ opacity: 0, x: -12 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3 }}
+          className="flex items-center gap-3"
+        >
           <Link
             to="/foundryos/get-started"
-            className="flex items-center justify-center w-10 h-10 rounded-lg text-gray-600 hover:bg-gray-100 transition-all hover:shadow-sm"
+            className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-all hover:shadow-sm group"
             title="Back to FoundryOS"
           >
-            <FiArrowLeft className="w-5 h-5" />
+            <FiArrowLeft className="w-4 h-4 group-hover:text-gray-900 transition-colors" />
+            <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 transition-colors">FoundryOS</span>
           </Link>
           
-          {/* Tab Bar Style Header */}
+          <div className="text-gray-300">/</div>
+          
           <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="flex items-center gap-1"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.1 }}
+            className="flex flex-col"
           >
-            <div className="flex flex-col">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-gradient-to-br from-orange-400 to-orange-600" />
-                <h1 className="text-base font-display font-semibold text-gray-900">{stageName}</h1>
-              </div>
-              <p className="text-xs text-gray-500 mt-0.5 ml-3">Stage Workspace</p>
-            </div>
+            <h1 className="text-base font-semibold text-gray-900">{stageName}</h1>
+            <p className="text-xs text-gray-500 mt-0.5">Stage Workspace</p>
           </motion.div>
-        </div>
+        </motion.div>
 
         {/* Right: Action buttons */}
         <motion.div
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, x: 12 }}
+          animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3, delay: 0.1 }}
-          className="flex items-center gap-2"
+          className="flex items-center gap-3"
         >
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="flex items-center justify-center w-10 h-10 rounded-lg text-gray-600 hover:bg-gray-100 transition-all hover:shadow-sm"
-            title="Share workspace"
+            className="flex items-center justify-center w-10 h-10 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-all hover:shadow-sm"
+            title="Invite collaborators"
           >
-            <FiShare2 className="w-5 h-5" />
+            <FiUsers className="w-5 h-5" />
           </motion.button>
           
           <div className="w-px h-6 bg-gray-200" />
@@ -132,7 +134,7 @@ const StageNavbar: React.FC<StageNavbarProps> = ({
             disabled={isExporting}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-700 text-sm font-semibold transition-all hover:border-orange-200 hover:bg-orange-50/50 hover:text-orange-700 hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 bg-white text-gray-700 text-sm font-semibold transition-all hover:border-[#ff6b00] hover:bg-[#fff5f0] hover:text-[#ff6b00] hover:shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <FiDownload className="w-4 h-4" />
             <span className="hidden sm:inline">{isExporting ? 'Exporting...' : 'Export'}</span>

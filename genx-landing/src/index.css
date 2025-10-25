@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 @font-face {
   font-family: 'Neue Haas Display';
   src: url('/fonts/fonnts.com-NeueHaasDisplayRoman.ttf') format('truetype');

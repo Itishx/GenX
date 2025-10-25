@@ -147,7 +147,7 @@ const StageWorkspace: React.FC<StageWorkspaceProps> = ({
   }, [])
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-b from-white to-gray-50 overflow-hidden">
+    <div className="fixed inset-0 bg-[#fafafa] overflow-hidden">
       {/* Stage Navbar */}
       <StageNavbar
         stageName={stageName}
@@ -156,12 +156,12 @@ const StageWorkspace: React.FC<StageWorkspaceProps> = ({
 
       {/* Main split-screen layout */}
       <div className="pt-20 h-full flex overflow-hidden gap-0">
-        {/* Left Panel: Chat - Premium Design */}
+        {/* Left Panel: Chat */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.4 }}
-          className="w-full md:w-1/2 border-r border-gray-200/50 overflow-hidden flex flex-col bg-white"
+          className="w-full md:w-1/2 border-r border-[#e8e8e8] overflow-hidden flex flex-col bg-white"
         >
           <ChatPanel
             messages={messages}
@@ -171,12 +171,12 @@ const StageWorkspace: React.FC<StageWorkspaceProps> = ({
           />
         </motion.div>
 
-        {/* Right Panel: Canvas - Premium Design */}
+        {/* Right Panel: Canvas */}
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.4, delay: 0.1 }}
-          className="hidden md:flex w-1/2 overflow-hidden flex-col bg-gradient-to-br from-gray-50 via-white to-gray-100"
+          className="hidden md:flex w-1/2 overflow-hidden flex-col bg-white border-l border-[#e8e8e8]"
         >
           <div data-canvas-export className="w-full h-full">
             <CanvasPanel
@@ -192,7 +192,7 @@ const StageWorkspace: React.FC<StageWorkspaceProps> = ({
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="md:hidden fixed bottom-0 left-0 right-0 bg-gradient-to-br from-gray-50 to-white border-t border-gray-200/50 h-48 overflow-y-auto shadow-2xl"
+          className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#e8e8e8] h-48 overflow-y-auto shadow-2xl"
         >
           <CanvasPanel
             insights={insights}
