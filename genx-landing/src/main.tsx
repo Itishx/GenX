@@ -61,6 +61,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 
             {/* Stage workspace pages */}
             <Route path="/foundry/:stageId" element={<StageDetail />} />
+            <Route path="/launch/:stageId" element={<StageDetail />} />
 
             {/* Protected app routes */}
             <Route

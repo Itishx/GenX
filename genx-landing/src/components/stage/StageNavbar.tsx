@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { FiArrowLeft, FiDownload, FiShare2, FiUsers } from 'react-icons/fi'
 
@@ -14,6 +14,16 @@ const StageNavbar: React.FC<StageNavbarProps> = ({
   stageDescription,
 }) => {
   const [isExporting, setIsExporting] = useState(false)
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  // Determine which OS we're in based on the route
+  const isFoundry = location.pathname.startsWith('/foundry/')
+  const osName = isFoundry ? 'FoundryOS' : 'LaunchOS'
+
+  const handleBack = () => {
+    navigate('/app/agents')
+  }
 
   const handleExportPDF = async () => {
     setIsExporting(true)
@@ -89,14 +99,14 @@ const StageNavbar: React.FC<StageNavbarProps> = ({
           transition={{ duration: 0.3 }}
           className="flex items-center gap-3"
         >
-          <Link
-            to="/foundryos/get-started"
+          <button
+            onClick={handleBack}
             className="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-all hover:shadow-sm group"
-            title="Back to FoundryOS"
+            title={`Back to ${osName}`}
           >
             <FiArrowLeft className="w-4 h-4 group-hover:text-gray-900 transition-colors" />
-            <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 transition-colors">FoundryOS</span>
-          </Link>
+            <span className="text-sm font-medium text-gray-700 group-hover:text-gray-900 transition-colors">{osName}</span>
+          </button>
           
           <div className="text-gray-300">/</div>
           
