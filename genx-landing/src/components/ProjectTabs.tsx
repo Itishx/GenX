@@ -1,6 +1,6 @@
 import React from 'react'
 import { motion } from 'framer-motion'
-import { FiPlus, FiDownload, FiMenu } from 'react-icons/fi'
+import { FiPlus, FiDownload, FiMenu, FiShare2 } from 'react-icons/fi'
 
 interface ProjectTabsProps {
   projects: Array<{ id: string; name: string }>
@@ -8,6 +8,7 @@ interface ProjectTabsProps {
   onProjectSelect: (projectId: string) => void
   onNewProject: () => void
   onExport?: () => void
+  onShare?: () => void
   onToggleSidebar: () => void
 }
 
@@ -17,6 +18,7 @@ const ProjectTabs: React.FC<ProjectTabsProps> = ({
   onProjectSelect,
   onNewProject,
   onExport,
+  onShare,
   onToggleSidebar,
 }) => {
   return (
@@ -70,6 +72,17 @@ const ProjectTabs: React.FC<ProjectTabsProps> = ({
 
       {/* Right: Action Buttons */}
       <div className="flex items-center justify-end gap-3 flex-1">
+        {onShare && (
+          <motion.button
+            onClick={onShare}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="rounded-lg p-2 text-gray-600 hover:bg-gray-100 transition-colors"
+            title="Share project"
+          >
+            <FiShare2 className="h-5 w-5" />
+          </motion.button>
+        )}
         {onExport && (
           <motion.button
             onClick={onExport}

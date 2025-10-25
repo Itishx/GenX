@@ -4,6 +4,8 @@ import ProjectTabs from './ProjectTabs'
 import ProjectSidebar, { Project } from './ProjectSidebar'
 import EmptyProjectState from './EmptyProjectState'
 import ProjectModal, { ProjectFormData, OSType } from './ProjectModal'
+import ShareProjectModal from './ShareProjectModal'
+import TeammateActivityModal from './TeammateActivityModal'
 import EmbeddedFoundryOS from './EmbeddedFoundryOS'
 import EmbeddedLaunchOS from './EmbeddedLaunchOS'
 import { useAuth } from '@/context/AuthContext'
@@ -15,6 +17,8 @@ const ProjectWorkspace: React.FC = () => {
   const [activeProjectId, setActiveProjectId] = React.useState<string | null>(null)
   const [loading, setLoading] = React.useState(true)
   const [modalOpen, setModalOpen] = React.useState(false)
+  const [shareModalOpen, setShareModalOpen] = React.useState(false)
+  const [activityModalOpen, setActivityModalOpen] = React.useState(false)
   const [editingProject, setEditingProject] = React.useState<Project | null>(null)
   const [creating, setCreating] = React.useState(false)
   const [workspaceError, setWorkspaceError] = React.useState<string | null>(null)
@@ -210,6 +214,17 @@ const ProjectWorkspace: React.FC = () => {
     URL.revokeObjectURL(url)
   }
 
+  const handleShare = () => {
+    if (activeProjectId) {
+      setShareModalOpen(true)
+    }
+  }
+
+  const handleViewActivity = (project: Project) => {
+    setActiveProjectId(project.id)
+    setActivityModalOpen(true)
+  }
+
   const handleSignOut = async () => {
     await signOut()
   }
@@ -249,6 +264,7 @@ const ProjectWorkspace: React.FC = () => {
         onToggleSidebar={handleToggleSidebar}
         onEditProject={handleEditProject}
         onDeleteProject={handleDeleteProject}
+        onViewActivity={handleViewActivity}
       />
 
       {/* Main Content - Fills remaining space */}
@@ -263,6 +279,7 @@ const ProjectWorkspace: React.FC = () => {
             setModalOpen(true)
           }}
           onExport={projects.length > 0 ? handleExport : undefined}
+          onShare={projects.length > 0 ? handleShare : undefined}
           onToggleSidebar={handleToggleSidebar}
         />
 
@@ -325,6 +342,27 @@ const ProjectWorkspace: React.FC = () => {
         isLoading={creating}
         editingProject={editingProject}
       />
+
+      {/* Share Project Modal */}
+      {activeProject && user && (
+        <ShareProjectModal
+          open={shareModalOpen}
+          onClose={() => setShareModalOpen(false)}
+          projectId={activeProject.id}
+          projectName={activeProject.name}
+          projectOwnerId={user.id}
+        />
+      )}
+
+      {/* Teammate Activity Modal */}
+      {activeProject && (
+        <TeammateActivityModal
+          open={activityModalOpen}
+          onClose={() => setActivityModalOpen(false)}
+          projectId={activeProject.id}
+          projectName={activeProject.name}
+        />
+      )}
     </div>
   )
 }

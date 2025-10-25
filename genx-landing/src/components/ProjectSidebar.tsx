@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FiBriefcase, FiTrendingUp, FiLogOut, FiSettings, FiMenu, FiX } from 'react-icons/fi'
+import { FiBriefcase, FiTrendingUp, FiHome, FiSettings, FiMenu, FiX, FiActivity } from 'react-icons/fi'
 import { useAuth } from '@/context/AuthContext'
+import { useNavigate } from 'react-router-dom'
 
 export interface Project {
   id: string
@@ -20,6 +21,7 @@ interface ProjectSidebarProps {
   onToggleSidebar: () => void
   onEditProject: (project: Project) => void
   onDeleteProject: (projectId: string) => void
+  onViewActivity?: (project: Project) => void
 }
 
 const ProjectSidebar: React.FC<ProjectSidebarProps> = ({
@@ -31,8 +33,10 @@ const ProjectSidebar: React.FC<ProjectSidebarProps> = ({
   onToggleSidebar,
   onEditProject,
   onDeleteProject,
+  onViewActivity,
 }) => {
   const { profile } = useAuth()
+  const navigate = useNavigate()
   const [hoveredProjectId, setHoveredProjectId] = useState<string | null>(null)
   const [openMenuId, setOpenMenuId] = useState<string | null>(null)
 
@@ -60,6 +64,18 @@ const ProjectSidebar: React.FC<ProjectSidebarProps> = ({
     e.stopPropagation()
     onEditProject(project)
     setOpenMenuId(null)
+  }
+
+  const handleActivityClick = (e: React.MouseEvent, project: Project) => {
+    e.stopPropagation()
+    if (onViewActivity) {
+      onViewActivity(project)
+    }
+    setOpenMenuId(null)
+  }
+
+  const handleHomeClick = () => {
+    navigate('/')
   }
 
   return (
@@ -183,11 +199,23 @@ const ProjectSidebar: React.FC<ProjectSidebarProps> = ({
                                   initial={{ opacity: 0, scale: 0.9, y: -8 }}
                                   animate={{ opacity: 1, scale: 1, y: 0 }}
                                   exit={{ opacity: 0, scale: 0.9, y: -8 }}
-                                  className="absolute right-0 mt-1 w-32 rounded-lg border border-gray-200 bg-white shadow-lg z-50"
+                                  className="absolute right-0 mt-1 w-40 rounded-lg border border-gray-200 bg-white shadow-lg z-50"
                                 >
+                                  {onViewActivity && (
+                                    <>
+                                      <button
+                                        onClick={(e) => handleActivityClick(e, project)}
+                                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors first:rounded-t-lg flex items-center gap-2"
+                                      >
+                                        <FiActivity className="h-4 w-4" />
+                                        <span>View Activity</span>
+                                      </button>
+                                      <div className="border-t border-gray-100" />
+                                    </>
+                                  )}
                                   <button
                                     onClick={(e) => handleEditClick(e, project)}
-                                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors first:rounded-t-lg"
+                                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                                   >
                                     Edit
                                   </button>
@@ -227,13 +255,13 @@ const ProjectSidebar: React.FC<ProjectSidebarProps> = ({
             </div>
           </div>
           <motion.button
-            onClick={onSignOut}
+            onClick={handleHomeClick}
             className="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            <FiLogOut className="h-4 w-4" />
-            <span>Sign out</span>
+            <FiHome className="h-4 w-4" />
+            <span>Go to Homepage</span>
           </motion.button>
         </div>
       </motion.aside>
