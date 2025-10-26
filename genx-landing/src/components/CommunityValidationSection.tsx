@@ -1,8 +1,9 @@
+import React from 'react'
 import { motion } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
 import '../styles/shimmer.css'
 
-const CommunityValidationSection = () => {
+const CommunityValidationSection: React.FC = () => {
   const { ref, inView } = useInView({
     threshold: 0.1,
     triggerOnce: true,
