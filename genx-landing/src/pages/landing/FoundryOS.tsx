@@ -70,7 +70,7 @@ const FoundryOS: React.FC = () => {
       <main className="pt-20">
         {/* ============ 1️⃣ HERO SECTION ============ */}
         <section className="relative w-full bg-white px-6 py-24 md:py-32">
-          <div className="mx-auto max-w-4xl text-center">
+          <div className="mx-auto max-w-7xl text-center">
             {/* Main Heading */}
             <motion.h1
               className="mb-6 font-bold tracking-tight text-gray-900"
@@ -103,7 +103,7 @@ const FoundryOS: React.FC = () => {
 
             {/* Hero Image */}
             <motion.div
-              className="mx-auto mt-16 max-w-5xl"
+              className="mx-auto mt-16 w-full max-w-6xl"
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.3, ease: 'easeOut' }}
@@ -117,15 +117,12 @@ const FoundryOS: React.FC = () => {
                   className="relative overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50 border border-gray-200 shadow-2xl"
                   style={{ borderRadius: '20px', aspectRatio: '16 / 9' }}
                 >
-                  <div className="h-full w-full flex items-center justify-center">
-                    <svg
-                      className="w-3/4 h-3/4 text-gray-300"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
-                    </svg>
-                  </div>
+                  <img
+                    src="/assets/foundryos.jpg"
+                    alt="FoundryOS"
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                  />
                   <div className="pointer-events-none absolute -left-4 -top-4 h-16 w-16 rounded-full bg-orange-500/10 blur-3xl"></div>
                   <div className="pointer-events-none absolute -bottom-4 -right-4 h-20 w-20 rounded-full bg-orange-600/10 blur-3xl"></div>
                 </div>
@@ -173,9 +170,15 @@ const FoundryOS: React.FC = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
                   viewport={{ once: true, amount: 0.3 }}
-                  className="w-full bg-gradient-to-br from-gray-100 to-gray-50 border border-gray-200 rounded-lg shadow-md flex items-center justify-center min-h-[320px]"
+                  className="w-full rounded-lg shadow-md overflow-hidden"
+                  style={{ aspectRatio: '16 / 9' }}
                 >
-                  <p className="text-gray-400 text-sm">Image Placeholder</p>
+                  <img
+                    src="/assets/foundryos.jpg"
+                    alt="FoundryOS Stages"
+                    className="h-full w-full object-cover"
+                    loading="lazy"
+                  />
                 </motion.div>
               </motion.div>
 

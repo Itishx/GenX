@@ -67,7 +67,7 @@ const Hero = () => {
             {/* Image container */}
             <div className="relative overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50 border border-gray-200 shadow-2xl" style={{ borderRadius: '20px', aspectRatio: '16 / 9' }}>
               <img
-                src="/assets/mainhero.png"
+                src="/assets/herosection.jpg"
                 alt="Aviate Dashboard Preview"
                 className="h-full w-full object-cover"
                 style={{ objectPosition: 'left center', willChange: 'transform' }}
