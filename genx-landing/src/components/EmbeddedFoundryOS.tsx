@@ -334,7 +334,7 @@ const TabNavigation: React.FC<{
             <motion.div
               className="absolute inset-0 rounded-full"
               style={{ backgroundColor: '#FF3B00' }}
-              layoutId="activeTab"
+              layoutId={`activeTab-${tab.id}`}
               transition={{ type: 'spring', stiffness: 500, damping: 30 }}
             />
           )}

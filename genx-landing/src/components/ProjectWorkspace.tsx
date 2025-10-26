@@ -284,13 +284,14 @@ const ProjectWorkspace: React.FC = () => {
         />
 
         {/* Workspace Content Area */}
-        <div className="flex-1 overflow-auto bg-[#fafafa] w-full">
+        <div className="flex-1 overflow-hidden bg-[#fafafa] w-full">
           <AnimatePresence mode="wait">
             {workspaceError && (
               <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="m-4 rounded-lg bg-red-50 border border-red-200 p-4"
+                exit={{ opacity: 0, y: -20 }}
+                className="absolute top-0 left-0 right-0 z-50 m-4 rounded-lg bg-red-50 border border-red-200 p-4 max-w-lg mx-auto"
               >
                 <p className="text-sm text-red-700">{workspaceError}</p>
                 <p className="text-xs text-red-600 mt-2">
@@ -300,33 +301,29 @@ const ProjectWorkspace: React.FC = () => {
             )}
             {projects.length === 0 ? (
               <EmptyProjectState key="empty" onCreateProject={() => setModalOpen(true)} />
-            ) : (
-              <AnimatePresence mode="wait">
-                {activeProject?.os === 'foundryos' ? (
-                  <motion.div
-                    key="foundryos"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="w-full h-full"
-                  >
-                    <EmbeddedFoundryOS />
-                  </motion.div>
-                ) : activeProject?.os === 'launchos' ? (
-                  <motion.div
-                    key="launchos"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="w-full h-full"
-                  >
-                    <EmbeddedLaunchOS />
-                  </motion.div>
-                ) : null}
-              </AnimatePresence>
-            )}
+            ) : activeProject?.os === 'foundryos' ? (
+              <motion.div
+                key={`foundryos-${activeProjectId}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="w-full h-full overflow-auto"
+              >
+                <EmbeddedFoundryOS />
+              </motion.div>
+            ) : activeProject?.os === 'launchos' ? (
+              <motion.div
+                key={`launchos-${activeProjectId}`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="w-full h-full overflow-auto"
+              >
+                <EmbeddedLaunchOS />
+              </motion.div>
+            ) : null}
           </AnimatePresence>
         </div>
       </main>
