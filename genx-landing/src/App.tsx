@@ -4,6 +4,7 @@ import Hero from './components/Hero';
 import TwoOSSection from './components/TwoOSSection';
 import OSTabSection from './components/OSTabSection';
 import OSFlowSection from './components/OSFlowSection';
+import CommunityValidationSection from './components/CommunityValidationSection';
 import Pricing from './components/Pricing';
 import IntelligenceSection from './components/IntelligenceSection';
 import MetricsSection from './components/MetricsSection';
@@ -22,6 +23,7 @@ const App: React.FC = () => {
         <TwoOSSection />
         <OSTabSection />
         <OSFlowSection />
+        <CommunityValidationSection />
         <Pricing />
         <FAQSection />
         <MotionHeadlineSection />
