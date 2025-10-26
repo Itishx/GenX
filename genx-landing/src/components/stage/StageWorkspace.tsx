@@ -1,5 +1,6 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { useLocation } from 'react-router-dom'
 import StageNavbar from './StageNavbar'
 import ChatPanel, { ChatMessage } from './ChatPanel'
 import CanvasPanel, { CanvasInsight } from './CanvasPanel'
@@ -43,6 +44,29 @@ const StageWorkspace: React.FC<StageWorkspaceProps> = ({
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [insights, setInsights] = useState<CanvasInsight[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const location = useLocation()
+
+  // Save last accessed stage to localStorage on mount
+  useEffect(() => {
+    try {
+      const isLaunch = location.pathname.startsWith('/launch/')
+      const os = isLaunch ? 'launchos' : 'foundryos'
+      
+      // Get project name from query params or session storage
+      const projectName = sessionStorage.getItem('currentProjectName') || 'Your Project'
+      
+      const lastStageData = {
+        os,
+        stageId,
+        stageName,
+        projectName,
+      }
+      
+      localStorage.setItem('lastAccessedStage', JSON.stringify(lastStageData))
+    } catch (err) {
+      console.error('Error saving last accessed stage:', err)
+    }
+  }, [stageId, stageName, location.pathname])
 
   // Simple mock AI responses - in production, call your actual AI API
   const generateAIResponse = (userMessage: string): string => {

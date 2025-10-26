@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FiBriefcase, FiTrendingUp, FiHome, FiSettings, FiMenu, FiX, FiActivity } from 'react-icons/fi'
+import { FiBriefcase, FiTrendingUp, FiHome, FiSettings, FiMenu, FiX, FiActivity, FiSearch, FiUsers, FiHelpCircle, FiChevronDown } from 'react-icons/fi'
 import { useAuth } from '@/context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 
@@ -39,6 +39,8 @@ const ProjectSidebar: React.FC<ProjectSidebarProps> = ({
   const navigate = useNavigate()
   const [hoveredProjectId, setHoveredProjectId] = useState<string | null>(null)
   const [openMenuId, setOpenMenuId] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [teamspacesExpanded, setTeamspacesExpanded] = useState(true)
 
   const getOSIcon = (os: string) => {
     return os === 'foundryos' ? (
@@ -75,12 +77,16 @@ const ProjectSidebar: React.FC<ProjectSidebarProps> = ({
   }
 
   const handleHomeClick = () => {
-    navigate('/')
+    navigate('/app/workspace-home')
   }
+
+  const filteredProjects = projects.filter(p => 
+    p.name.toLowerCase().includes(searchQuery.toLowerCase())
+  )
 
   return (
     <>
-      {/* Sidebar Toggle Button (visible on mobile and desktop) */}
+      {/* Sidebar Toggle Button (visible on mobile) */}
       {!isOpen && (
         <motion.button
           onClick={onToggleSidebar}
@@ -104,164 +110,269 @@ const ProjectSidebar: React.FC<ProjectSidebarProps> = ({
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar - Notion Style */}
       <motion.aside
-        className={`flex h-screen flex-col border-r border-gray-200 bg-white transition-all duration-300 ${
+        className={`flex h-screen flex-col bg-white transition-all duration-300 border-r border-gray-200 ${
           isOpen ? 'w-64' : 'w-0'
         } md:relative md:w-64 fixed md:fixed z-40 md:z-auto`}
         initial={false}
         animate={{ width: isOpen ? 256 : 0 }}
         transition={{ duration: 0.3, ease: 'easeInOut' }}
       >
-        {/* Header with Close Button */}
-        <div className="border-b border-gray-200 px-6 py-6 flex items-center justify-between flex-shrink-0">
-          <h2 className="text-xs font-semibold uppercase tracking-widest text-gray-500 whitespace-nowrap">
-            Your Projects
-          </h2>
+        {/* Close Button - Mobile Only */}
+        <div className="md:hidden absolute top-4 right-4">
           <motion.button
             onClick={onToggleSidebar}
-            className="rounded-lg p-1 text-gray-600 hover:bg-gray-100 transition-colors md:hidden flex-shrink-0"
+            className="rounded-lg p-1 text-gray-600 hover:bg-gray-100 transition-colors"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <FiX className="h-4 w-4" />
+            <FiX className="h-5 w-5" />
           </motion.button>
         </div>
 
-        {/* Projects List */}
-        <div className="flex-1 overflow-y-auto px-3 py-4">
-          <AnimatePresence>
-            {projects.length === 0 ? (
-              <motion.div
-                className="flex items-center justify-center px-3 py-12"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              >
-                <p className="text-center text-sm text-gray-400 whitespace-nowrap">
-                  No projects yet. Create one to get started.
-                </p>
-              </motion.div>
-            ) : (
-              projects.map((project, idx) => (
-                <motion.div
-                  key={project.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: idx * 0.05 }}
-                  onMouseEnter={() => setHoveredProjectId(project.id)}
-                  onMouseLeave={() => setHoveredProjectId(null)}
-                  className="relative mb-2"
-                >
-                  <button
-                    onClick={() => onProjectSelect(project.id)}
-                    className={`w-full rounded-lg border px-4 py-3 text-left transition-all ${
-                      activeProjectId === project.id
-                        ? 'border-[#f03612] bg-[#fff5f2]'
-                        : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                    }`}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1 min-w-0">
-                        <h3 className="truncate font-medium text-gray-900">
-                          {project.name}
-                        </h3>
-                        <div className="mt-2 flex items-center gap-1 text-xs text-gray-500">
-                          {getOSIcon(project.os)}
-                          <span>{getOSLabel(project.os)}</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 ml-2">
-                        {activeProjectId === project.id && (
-                          <div className="h-2 w-2 flex-shrink-0 rounded-full" style={{ backgroundColor: '#f03612' }} />
-                        )}
-                        {(hoveredProjectId === project.id || openMenuId === project.id) && (
-                          <motion.div
-                            initial={{ opacity: 0, scale: 0.9 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            className="relative"
-                          >
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                setOpenMenuId(openMenuId === project.id ? null : project.id)
-                              }}
-                              className="p-1 rounded hover:bg-gray-200 transition-colors flex-shrink-0"
-                              title="Project settings"
-                            >
-                              <FiSettings className="h-4 w-4 text-gray-500" />
-                            </button>
-                            
-                            {/* Settings Menu */}
-                            <AnimatePresence>
-                              {openMenuId === project.id && (
-                                <motion.div
-                                  initial={{ opacity: 0, scale: 0.9, y: -8 }}
-                                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                                  exit={{ opacity: 0, scale: 0.9, y: -8 }}
-                                  className="absolute right-0 mt-1 w-40 rounded-lg border border-gray-200 bg-white shadow-lg z-50"
-                                >
-                                  {onViewActivity && (
-                                    <>
-                                      <button
-                                        onClick={(e) => handleActivityClick(e, project)}
-                                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors first:rounded-t-lg flex items-center gap-2"
-                                      >
-                                        <FiActivity className="h-4 w-4" />
-                                        <span>View Activity</span>
-                                      </button>
-                                      <div className="border-t border-gray-100" />
-                                    </>
-                                  )}
-                                  <button
-                                    onClick={(e) => handleEditClick(e, project)}
-                                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                                  >
-                                    Edit
-                                  </button>
-                                  <button
-                                    onClick={(e) => handleDeleteClick(e, project.id)}
-                                    className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors last:rounded-b-lg border-t border-gray-100"
-                                  >
-                                    Delete
-                                  </button>
-                                </motion.div>
-                              )}
-                            </AnimatePresence>
-                          </motion.div>
-                        )}
-                      </div>
-                    </div>
-                  </button>
-                </motion.div>
-              ))
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* Profile Section at Bottom */}
-        <div className="border-t border-gray-200 px-3 py-4 flex-shrink-0">
-          <div className="mb-3 flex items-center gap-3 rounded-lg px-3 py-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full flex-shrink-0" style={{ background: 'linear-gradient(to bottom right, #f03612, #c71200)' }}>
-              <span className="text-xs font-semibold text-white">
-                {profile?.name?.charAt(0).toUpperCase() || 'U'}
-              </span>
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-gray-900">
-                {profile?.name || 'User'}
-              </p>
-              <p className="truncate text-xs text-gray-500">Your workspace</p>
-            </div>
-          </div>
+        {/* Header Section - Workspace Name */}
+        <div className="px-4 py-6 border-b border-gray-200 flex-shrink-0">
           <motion.button
-            onClick={handleHomeClick}
-            className="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+            onClick={onToggleSidebar}
+            className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors group"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            <FiHome className="h-4 w-4" />
-            <span>Go to Homepage</span>
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="h-6 w-6 rounded bg-gradient-to-br from-[#ff6b00] to-[#ff9248] flex items-center justify-center flex-shrink-0">
+                <span className="text-xs font-bold text-white">
+                  {profile?.name?.charAt(0).toUpperCase() || 'W'}
+                </span>
+              </div>
+              <span className="text-sm font-semibold text-gray-900 truncate">
+                {profile?.name || 'Workspace'}'s Workspace
+              </span>
+            </div>
+            <FiChevronDown className="h-4 w-4 text-gray-500 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+          </motion.button>
+        </div>
+
+        {/* Search Tab */}
+        <div className="px-4 py-3 border-b border-gray-200 flex-shrink-0">
+          <div className="relative">
+            <FiSearch className="absolute left-3 top-3 h-4 w-4 text-gray-400 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Search agents..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-3 py-2 text-sm bg-gray-100 border border-gray-200 rounded-lg focus:outline-none focus:bg-white focus:border-[#ff6b00] transition-colors placeholder-gray-500"
+            />
+          </div>
+        </div>
+
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto">
+          {/* Home Tab */}
+          <div className="px-4 py-3">
+            <motion.button
+              onClick={handleHomeClick}
+              className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <FiHome className="h-4 w-4 text-gray-600 flex-shrink-0" />
+              <span className="font-medium">Home</span>
+            </motion.button>
+          </div>
+
+          {/* Divider */}
+          <div className="mx-4 my-2 h-px bg-gray-200" />
+
+          {/* Teamspaces Section */}
+          <div className="px-4 py-3">
+            <motion.button
+              onClick={() => setTeamspacesExpanded(!teamspacesExpanded)}
+              className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-gray-600 uppercase tracking-wider hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <span>Teamspaces</span>
+              <motion.div
+                animate={{ rotate: teamspacesExpanded ? 0 : -90 }}
+                transition={{ duration: 0.2 }}
+              >
+                <FiChevronDown className="h-3 w-3" />
+              </motion.div>
+            </motion.button>
+
+            <AnimatePresence>
+              {teamspacesExpanded && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="mt-2 space-y-1 overflow-hidden"
+                >
+                  <motion.button
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.05 }}
+                    onClick={() => {}}
+                    className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <FiUsers className="h-4 w-4 text-gray-500 flex-shrink-0" />
+                    <span>Team Activity</span>
+                  </motion.button>
+                  <motion.button
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 }}
+                    onClick={() => {}}
+                    className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <FiUsers className="h-4 w-4 text-gray-500 flex-shrink-0" />
+                    <span>Team Details</span>
+                  </motion.button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Divider */}
+          <div className="mx-4 my-2 h-px bg-gray-200" />
+
+          {/* Agents Section */}
+          <div className="px-4 py-3">
+            <div className="text-xs font-semibold text-gray-600 uppercase tracking-wider px-3 py-2">
+              Your Projects
+            </div>
+
+            <div className="mt-2 space-y-1">
+              {filteredProjects.length === 0 ? (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="px-3 py-4 text-center text-xs text-gray-400"
+                >
+                  {searchQuery ? 'No agents found' : 'No agents yet. Create one to get started.'}
+                </motion.div>
+              ) : (
+                <AnimatePresence>
+                  {filteredProjects.map((project, idx) => (
+                    <motion.div
+                      key={project.id}
+                      initial={{ opacity: 0, x: -8 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -8 }}
+                      transition={{ delay: idx * 0.05 }}
+                      onMouseEnter={() => setHoveredProjectId(project.id)}
+                      onMouseLeave={() => setHoveredProjectId(null)}
+                      className="relative group"
+                    >
+                      <button
+                        onClick={() => onProjectSelect(project.id)}
+                        className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all flex items-center gap-2 group-hover:bg-gray-100 ${
+                          activeProjectId === project.id
+                            ? 'bg-gray-100 text-gray-900'
+                            : 'text-gray-700 hover:text-gray-900'
+                        }`}
+                      >
+                        <div className="flex-shrink-0">
+                          {getOSIcon(project.os)}
+                        </div>
+                        <span className="flex-1 truncate font-medium">
+                          {project.name}
+                        </span>
+                        {activeProjectId === project.id && (
+                          <div className="h-2 w-2 rounded-full bg-[#ff6b00] flex-shrink-0" />
+                        )}
+                      </button>
+
+                      {/* Hover Menu */}
+                      <AnimatePresence>
+                        {(hoveredProjectId === project.id || openMenuId === project.id) && (
+                          <motion.button
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.8 }}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setOpenMenuId(openMenuId === project.id ? null : project.id)
+                            }}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded hover:bg-gray-200 transition-colors"
+                            title="Project settings"
+                          >
+                            <svg className="h-4 w-4 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                              <path d="M10.5 1.5H9.5V3h1V1.5zM10.5 16v1.5H9.5V16h1zM19 9.5v1H17.5v-1H19zM4.5 10v-1H3v1h1.5z" />
+                            </svg>
+                          </motion.button>
+                        )}
+                      </AnimatePresence>
+
+                      {/* Settings Menu */}
+                      <AnimatePresence>
+                        {openMenuId === project.id && (
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: -8 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: -8 }}
+                            className="absolute right-0 top-full mt-1 w-40 rounded-lg border border-gray-200 bg-white shadow-lg z-50"
+                          >
+                            {onViewActivity && (
+                              <>
+                                <button
+                                  onClick={(e) => handleActivityClick(e, project)}
+                                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors first:rounded-t-lg flex items-center gap-2"
+                                >
+                                  <FiActivity className="h-4 w-4" />
+                                  <span>View Activity</span>
+                                </button>
+                                <div className="border-t border-gray-100" />
+                              </>
+                            )}
+                            <button
+                              onClick={(e) => handleEditClick(e, project)}
+                              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={(e) => handleDeleteClick(e, project.id)}
+                              className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors last:rounded-b-lg border-t border-gray-100"
+                            >
+                              Delete
+                            </button>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="mx-4 my-2 h-px bg-gray-200 flex-shrink-0" />
+
+        {/* Bottom Section - Settings & Help */}
+        <div className="px-4 py-3 space-y-2 flex-shrink-0">
+          <motion.button
+            onClick={() => navigate('/app/settings')}
+            className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <FiSettings className="h-4 w-4 text-gray-600 flex-shrink-0" />
+            <span className="font-medium">Settings</span>
+          </motion.button>
+          <motion.button
+            onClick={() => navigate('/app/help')}
+            className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <FiHelpCircle className="h-4 w-4 text-gray-600 flex-shrink-0" />
+            <span className="font-medium">Help</span>
           </motion.button>
         </div>
       </motion.aside>

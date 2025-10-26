@@ -31,6 +31,7 @@ import StageDetail from './pages/landing/StageDetail'
 import About from './pages/About'
 import FoundryOS from './pages/landing/FoundryOS'
 import LaunchOS from './pages/landing/LaunchOS'
+import WorkspaceHome from './pages/app/WorkspaceHome'
 
 const ScrollToTop = () => {
   useScrollToTop();
@@ -89,6 +90,18 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             >
               <Route path="businessx" element={<AppBusinessX />} />
               <Route path="marketx" element={<AppMarketX />} />
+            </Route>
+
+            {/* Workspace Home */}
+            <Route
+              path="/app/workspace-home"
+              element={
+                <ProtectedRoute>
+                  <AppLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<WorkspaceHome />} />
             </Route>
 
             {/* Catch-all route - redirect to home for undefined paths */}
