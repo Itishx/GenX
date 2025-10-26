@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { FiBriefcase, FiTrendingUp, FiHome, FiSettings, FiMenu, FiX, FiActivity, FiSearch, FiUsers, FiHelpCircle, FiChevronDown } from 'react-icons/fi'
 import { useAuth } from '@/context/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import GlobalSearch from './GlobalSearch'
 
 export interface Project {
   id: string
@@ -39,7 +40,6 @@ const ProjectSidebar: React.FC<ProjectSidebarProps> = ({
   const navigate = useNavigate()
   const [hoveredProjectId, setHoveredProjectId] = useState<string | null>(null)
   const [openMenuId, setOpenMenuId] = useState<string | null>(null)
-  const [searchQuery, setSearchQuery] = useState('')
   const [teamspacesExpanded, setTeamspacesExpanded] = useState(true)
 
   const getOSIcon = (os: string) => {
@@ -79,10 +79,6 @@ const ProjectSidebar: React.FC<ProjectSidebarProps> = ({
   const handleHomeClick = () => {
     navigate('/app/workspace-home')
   }
-
-  const filteredProjects = projects.filter(p => 
-    p.name.toLowerCase().includes(searchQuery.toLowerCase())
-  )
 
   return (
     <>
@@ -153,18 +149,9 @@ const ProjectSidebar: React.FC<ProjectSidebarProps> = ({
           </motion.button>
         </div>
 
-        {/* Search Tab */}
+        {/* Global Search Tab */}
         <div className="px-4 py-3 border-b border-gray-200 flex-shrink-0">
-          <div className="relative">
-            <FiSearch className="absolute left-3 top-3 h-4 w-4 text-gray-400 pointer-events-none" />
-            <input
-              type="text"
-              placeholder="Search agents..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-sm bg-gray-100 border border-gray-200 rounded-lg focus:outline-none focus:bg-white focus:border-[#ff6b00] transition-colors placeholder-gray-500"
-            />
-          </div>
+          <GlobalSearch projects={projects} activeProjectId={activeProjectId} />
         </div>
 
         {/* Scrollable Content */}
@@ -246,17 +233,17 @@ const ProjectSidebar: React.FC<ProjectSidebarProps> = ({
             </div>
 
             <div className="mt-2 space-y-1">
-              {filteredProjects.length === 0 ? (
+              {projects.length === 0 ? (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   className="px-3 py-4 text-center text-xs text-gray-400"
                 >
-                  {searchQuery ? 'No agents found' : 'No agents yet. Create one to get started.'}
+                  No projects yet. Create one to get started.
                 </motion.div>
               ) : (
                 <AnimatePresence>
-                  {filteredProjects.map((project, idx) => (
+                  {projects.map((project, idx) => (
                     <motion.div
                       key={project.id}
                       initial={{ opacity: 0, x: -8 }}

@@ -367,21 +367,6 @@ const EmbeddedFoundryOS: React.FC = () => {
   return (
     <section className="relative py-12 px-6 md:px-8 bg-[#fafafa]">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mb-12 md:mb-16"
-        >
-          <h1 className="text-5xl md:text-6xl font-bold text-[#111111] mb-3">
-            FoundryOS
-          </h1>
-          <p className="text-base text-[#666666] max-w-2xl leading-relaxed">
-            Your strategic workspace for clarity, structure, and progress.
-          </p>
-        </motion.div>
-
         {/* Tab Navigation */}
         <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 
@@ -395,7 +380,7 @@ const EmbeddedFoundryOS: React.FC = () => {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                 {stageOrder.map((stage, idx) => (
                   <WorkspaceCard
                     key={stage.id}

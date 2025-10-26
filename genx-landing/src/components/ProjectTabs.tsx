@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { FiPlus, FiDownload, FiMenu, FiShare2 } from 'react-icons/fi'
 
 interface ProjectTabsProps {
-  projects: Array<{ id: string; name: string }>
+  projects: Array<{ id: string; name: string; os?: string }>
   activeProjectId: string | null
   onProjectSelect: (projectId: string) => void
   onNewProject: () => void
@@ -21,6 +21,9 @@ const ProjectTabs: React.FC<ProjectTabsProps> = ({
   onShare,
   onToggleSidebar,
 }) => {
+  const activeProject = projects.find((p) => p.id === activeProjectId)
+  const osDisplayName = activeProject?.os === 'foundryos' ? 'FoundryOS' : activeProject?.os === 'launchos' ? 'LaunchOS' : ''
+
   return (
     <div className="sticky top-0 z-40 flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4">
       {/* Left: Sidebar Toggle and Project Name */}
@@ -36,6 +39,8 @@ const ProjectTabs: React.FC<ProjectTabsProps> = ({
         </motion.button>
         <h1 className="text-lg font-semibold text-gray-900">
           {projects.find((p) => p.id === activeProjectId)?.name || 'Projects'}
+          {osDisplayName && <span className="text-gray-400 ml-2">/</span>}
+          {osDisplayName && <span className="text-gray-600 ml-2">{osDisplayName}</span>}
         </h1>
       </div>
 
