@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FiBriefcase, FiTrendingUp, FiHome, FiSettings, FiMenu, FiX, FiActivity, FiSearch, FiUsers, FiHelpCircle, FiChevronDown } from 'react-icons/fi'
+import { FiBriefcase, FiTrendingUp, FiHome, FiSettings, FiMenu, FiX, FiActivity, FiSearch, FiUsers, FiHelpCircle, FiChevronDown, FiFileText } from 'react-icons/fi'
 import { useAuth } from '@/context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import GlobalSearch from './GlobalSearch'
@@ -80,6 +80,10 @@ const ProjectSidebar: React.FC<ProjectSidebarProps> = ({
     navigate('/app/workspace-home')
   }
 
+  const handleNotesClick = () => {
+    navigate('/app/notes')
+  }
+
   return (
     <>
       {/* Sidebar Toggle Button (visible on mobile) */}
@@ -156,17 +160,35 @@ const ProjectSidebar: React.FC<ProjectSidebarProps> = ({
 
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto">
-          {/* Home Tab */}
+          {/* Workspace Section */}
           <div className="px-4 py-3">
-            <motion.button
-              onClick={handleHomeClick}
-              className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <FiHome className="h-4 w-4 text-gray-600 flex-shrink-0" />
-              <span className="font-medium">Home</span>
-            </motion.button>
+            <div className="text-xs font-semibold text-gray-600 uppercase tracking-wider px-3 py-2">
+              Workspace
+            </div>
+
+            <div className="mt-2 space-y-1">
+              {/* Home Tab */}
+              <motion.button
+                onClick={handleHomeClick}
+                className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <FiHome className="h-4 w-4 text-gray-600 flex-shrink-0" />
+                <span className="font-medium">Home</span>
+              </motion.button>
+
+              {/* Avionote Tab */}
+              <motion.button
+                onClick={handleNotesClick}
+                className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <FiFileText className="h-4 w-4 text-gray-600 flex-shrink-0" />
+                <span className="font-medium">Avionote</span>
+              </motion.button>
+            </div>
           </div>
 
           {/* Divider */}

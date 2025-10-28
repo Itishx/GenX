@@ -24,6 +24,7 @@ const Navbar: React.FC = () => {
           {/* Center: Nav links (absolute centered) */}
           <ul className="absolute left-1/2 hidden -translate-x-1/2 transform items-center gap-x-8 text-sm text-gray-600 md:flex">
             <li><a href="/#product" className="transition-colors hover:text-gray-900">Product</a></li>
+            <li><a href="/avionote" className="transition-colors hover:text-gray-900">Avionote</a></li>
             <li><a href="/#resources" className="transition-colors hover:text-gray-900">Resources</a></li>
             <li><a href="/#pricing" className="transition-colors hover:text-gray-900">Pricing</a></li>
             <li><a href="/about" className="transition-colors hover:text-gray-900">About</a></li>

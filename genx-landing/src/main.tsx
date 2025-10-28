@@ -12,9 +12,9 @@ import useScrollToTop from './hooks/useScrollToTop'
 
 // App layout and pages
 import AppLayout from './pages/app/AppLayout'
-import AppChat from './pages/app/Chat'
 import MyAgents from './pages/app/Agents'
 import Subscriptions from './pages/app/Subscriptions'
+import NotesPage from './pages/app/Notes'
 
 // Agent dashboards nested under /app/agents
 // import AppCodeX from './pages/app/agents/CodeX'
@@ -31,6 +31,7 @@ import StageDetail from './pages/landing/StageDetail'
 import About from './pages/About'
 import FoundryOS from './pages/landing/FoundryOS'
 import LaunchOS from './pages/landing/LaunchOS'
+import NotesLanding from './pages/landing/NotesLanding'
 import WorkspaceHome from './pages/app/WorkspaceHome'
 
 const ScrollToTop = () => {
@@ -54,6 +55,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             {/* <Route path="/codex" element={<CodexLanding />} /> */}
             <Route path="/foundryos" element={<FoundryOS />} />
             <Route path="/launchos" element={<LaunchOS />} />
+            <Route path="/avionote" element={<NotesLanding />} />
             {/* <Route path="/dietx" element={<DietXLanding />} /> */}
 
             {/* Get started pages */}
@@ -73,9 +75,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
                 </ProtectedRoute>
               }
             >
-              {/* Redirect /app to Chat by default */}
-              <Route index element={<Navigate to="chat" replace />} />
-              <Route path="chat" element={<AppChat />} />
+              {/* Redirect /app to agents by default */}
+              <Route index element={<Navigate to="agents" replace />} />
+              <Route path="notes" element={<NotesPage />} />
               <Route path="subscriptions" element={<Subscriptions />} />
             </Route>
 
