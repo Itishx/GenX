@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FiSend, FiPlus } from 'react-icons/fi'
+import { FiSend, FiPlus, FiTrash2 } from 'react-icons/fi'
 
 export interface ChatMessage {
   id: string
@@ -14,6 +14,7 @@ interface ChatPanelProps {
   onSendMessage: (message: string) => void
   onAddToCanvas: (messageId: string) => void
   isLoading?: boolean
+  onClearChat: () => void;
 }
 
 const ChatPanel: React.FC<ChatPanelProps> = ({
@@ -21,6 +22,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
   onSendMessage,
   onAddToCanvas,
   isLoading = false,
+  onClearChat,
 }) => {
   const [inputValue, setInputValue] = useState('')
   const [addedMessages, setAddedMessages] = useState<Set<string>>(new Set())
@@ -96,7 +98,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
               transition={{ duration: 0.3, delay: idx * 0.04 }}
             >
               {message.role === 'ai' ? (
-                // AI Response - Clean paragraph block, no avatar
+                // AI Response
                 <div className="mb-6">
                   <div className="bg-[#fdfdfd] border border-[#f0f0f0] rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-200">
                     <p className="text-sm text-gray-800 leading-7 whitespace-pre-wrap font-medium">
@@ -139,15 +141,12 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
                   </div>
                 </div>
               ) : (
-                // User Message - Bubble with profile icon inside
+                // User Message
                 <div className="flex justify-end mb-6">
                   <div className="relative bg-[#f6f6f6] border border-[#ececec] rounded-2xl p-4 shadow-sm max-w-xs lg:max-w-sm flex items-end gap-3">
-                    {/* Message Text */}
                     <p className="text-sm text-[#1a1a1a] leading-7 whitespace-pre-wrap font-medium pr-12 flex-1">
                       {message.content}
                     </p>
-
-                    {/* Profile Icon - Bottom Right */}
                     <motion.div
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
@@ -194,7 +193,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Bar - Refined Design */}
+      {/* Input Bar */}
       <div className="border-t border-[#e8e8e8] bg-white px-12 md:px-12 py-8">
         <motion.div 
           className={`flex items-center gap-3 px-5 py-4 rounded-xl border transition-all duration-300 ${
@@ -208,17 +207,6 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
               : '0 2px 8px rgba(0, 0, 0, 0.04)'
           }}
         >
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-            className="flex items-center justify-center w-10 h-10 rounded-lg text-gray-600 hover:text-[#ff6b00] hover:bg-[#fff5f0] transition-all flex-shrink-0"
-            title="Upload file or image"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-          </motion.button>
-
           <input
             ref={inputRef}
             type="text"
@@ -241,6 +229,17 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
             <FiSend className="w-4.5 h-4.5" />
           </motion.button>
         </motion.div>
+        {messages.length > 0 && (
+            <div className="text-center mt-4">
+                <button 
+                    onClick={onClearChat}
+                    className="text-xs text-gray-500 hover:text-gray-700 transition-colors flex items-center gap-2 mx-auto"
+                >
+                    <FiTrash2 className="w-3 h-3" />
+                    Clear Chat
+                </button>
+            </div>
+        )}
       </div>
     </div>
   )

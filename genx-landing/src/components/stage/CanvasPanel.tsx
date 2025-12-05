@@ -93,7 +93,7 @@ const CanvasPanel: React.FC<CanvasPanelProps> = ({ insights, onRemoveInsight }) 
 
                       <div className="flex items-center gap-2 pt-3 border-t border-gray-200">
                         <span className="text-xs text-gray-500">
-                          {insight.addedAt.toLocaleTimeString([], {
+                          {new Date(insight.addedAt).toLocaleTimeString([], {
                             hour: '2-digit',
                             minute: '2-digit',
                           })}
