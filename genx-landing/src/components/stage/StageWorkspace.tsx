@@ -3,13 +3,24 @@ import { motion } from 'framer-motion'
 import { useLocation, useNavigate } from 'react-router-dom'
 import StageNavbar from './StageNavbar'
 import ChatPanel, { ChatMessage } from './ChatPanel'
-import CanvasPanel, { CanvasInsight } from './CanvasPanel'
+import StageNotesSidebar from './StageNotesSidebar'
+import { useSyncInsights } from '../../hooks/useSyncInsights'
+import { syncEmitter } from '../../hooks/notes/useNotes'
 import { FOUNDRY_STAGES_ORDER, LAUNCH_STAGES_ORDER, ALL_STAGES } from '../../lib/stages';
 
 interface StageWorkspaceProps {
   stageName: string
   stageDescription: string
   stageId: string
+}
+
+export interface CanvasInsight {
+  id: string
+  title: string
+  description: string
+  type: 'insight' | 'pain-point' | 'idea' | 'persona' | 'market' | 'next-step'
+  messageId: string
+  addedAt: Date
 }
 
 const extractInsightFromMessage = (message: string): { title: string; description: string; type: CanvasInsight['type'] } => {
@@ -39,15 +50,15 @@ const StageWorkspace: React.FC<StageWorkspaceProps> = ({
   stageDescription,
   stageId,
 }) => {
+  const { addInsight } = useSyncInsights()
   const [messages, setMessages] = useState<ChatMessage[]>([])
-  const [insights, setInsights] = useState<CanvasInsight[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [previousInsights, setPreviousInsights] = useState<CanvasInsight[]>([])
   const [previousStageName, setPreviousStageName] = useState<string | null>(null)
+  const [notesSidebarOpen, setNotesSidebarOpen] = useState(false)
   const location = useLocation()
   const navigate = useNavigate();
 
-  // Load canvas insights from previous stage (passed via sessionStorage when moving to next stage)
   useEffect(() => {
     const insightsKey = `canvas_insights_${stageId}`;
     const storedInsights = sessionStorage.getItem(insightsKey);
@@ -66,24 +77,6 @@ const StageWorkspace: React.FC<StageWorkspaceProps> = ({
     }
   }, [stageId]);
 
-  // Load canvas insights from localStorage (persistent across sessions and back navigation)
-  useEffect(() => {
-    const canvasKey = `canvas_${stageId}`;
-    const storedCanvas = localStorage.getItem(canvasKey);
-    if (storedCanvas) {
-      setInsights(JSON.parse(storedCanvas));
-    }
-  }, [stageId]);
-
-  // Save canvas insights to localStorage whenever they change
-  useEffect(() => {
-    if (insights.length > 0) {
-      const canvasKey = `canvas_${stageId}`;
-      localStorage.setItem(canvasKey, JSON.stringify(insights));
-    }
-  }, [insights, stageId]);
-
-  // Load messages from session storage on initial render
   useEffect(() => {
     const historyKey = `chat_history_${stageId}`;
     const storedHistory = sessionStorage.getItem(historyKey);
@@ -92,7 +85,6 @@ const StageWorkspace: React.FC<StageWorkspaceProps> = ({
     }
   }, [stageId]);
 
-  // Save messages to session storage whenever they change
   useEffect(() => {
     if (messages.length > 0) {
       const historyKey = `chat_history_${stageId}`;
@@ -100,7 +92,6 @@ const StageWorkspace: React.FC<StageWorkspaceProps> = ({
     }
   }, [messages, stageId]);
 
-  // Save last accessed stage to localStorage on mount
   useEffect(() => {
     try {
       const isLaunch = location.pathname.startsWith('/launch/')
@@ -192,15 +183,12 @@ const StageWorkspace: React.FC<StageWorkspaceProps> = ({
     const nextStageId = currentIndex < currentStages.length - 1 ? currentStages[currentIndex + 1] : null;
     
     if (nextStageId) {
-      // Save ONLY the canvas insights to the next stage - NOT the chat messages
       const insightsKey = `canvas_insights_${nextStageId}`;
-      sessionStorage.setItem(insightsKey, JSON.stringify(insights));
+      sessionStorage.setItem(insightsKey, JSON.stringify(previousInsights));
       
-      // Save the current stage name so we can show context
       const previousStageKey = `previous_stage_${nextStageId}`;
       sessionStorage.setItem(previousStageKey, stageName);
       
-      // Clear the chat history for the next stage so it starts fresh
       const nextChatHistoryKey = `chat_history_${nextStageId}`;
       sessionStorage.removeItem(nextChatHistoryKey);
       
@@ -209,130 +197,111 @@ const StageWorkspace: React.FC<StageWorkspaceProps> = ({
     }
   };
 
-  const handleAddToCanvas = useCallback((messageId: string) => {
+  const handleAddToNote = useCallback(async (messageId: string) => {
     const message = messages.find(m => m.id === messageId)
-    if (!message) return
+    if (!message) throw new Error('Message not found')
 
-    const { title, description, type } = extractInsightFromMessage(message.content)
+    try {
+      const projectId = sessionStorage.getItem('currentProjectId') || 'default-project'
+      
+      // Use the new centralized sync service
+      addInsight(message.content, stageId, projectId, 'chat')
 
-    const insight: CanvasInsight = {
-      id: `insight-${Date.now()}`,
-      title,
-      description,
-      type,
-      messageId,
-      addedAt: new Date(),
+      // Show success toast
+      const toastEvent = new CustomEvent('showToast', {
+        detail: { message: '✨ Added to AvioNote', type: 'success' },
+      })
+      window.dispatchEvent(toastEvent)
+    } catch (error) {
+      console.error('Error adding to AvioNote:', error)
+      throw error
     }
-
-    setInsights(prev => [...prev, insight])
-
-    const event = new CustomEvent('showToast', {
-      detail: { message: 'Insight added to canvas!', type: 'success' },
-    })
-    window.dispatchEvent(event)
-  }, [messages])
-
-  const handleRemoveInsight = useCallback((id: string) => {
-    setInsights(prev => prev.filter(insight => insight.id !== id))
-  }, [])
+  }, [messages, stageId, addInsight])
 
   return (
-    <div className="fixed inset-0 bg-[#fafafa] overflow-hidden">
+    <div className="fixed inset-0 bg-white overflow-hidden flex flex-col">
       <StageNavbar
         stageName={stageName}
         stageDescription={stageDescription}
         stageId={stageId}
         onGoToNextStage={handleGoToNextStage}
+        onToggleNotesSidebar={() => setNotesSidebarOpen(!notesSidebarOpen)}
+        notesOpen={notesSidebarOpen}
       />
 
-      <div className="pt-20 h-full flex overflow-hidden gap-0">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.4 }}
-          className="w-full md:w-1/2 border-r border-[#e8e8e8] overflow-hidden flex flex-col bg-white"
-        >
-          {previousInsights.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: -12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
-              className="border-b border-[#e8e8e8] bg-[#fafafa] px-6 py-4 max-h-48 overflow-y-auto flex-shrink-0"
-            >
-              <div className="max-w-2xl mx-auto">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-1 h-1 rounded-full bg-[#ff6b00]" />
-                  <span className="text-xs font-semibold text-[#ff6b00] uppercase tracking-wide">What you figured out</span>
-                </div>
-                <h3 className="text-sm font-semibold text-[#111111] mb-3">
-                  From {previousStageName}
-                </h3>
-                <div className="space-y-2">
-                  {previousInsights.map((insight, idx) => (
-                    <motion.div
-                      key={insight.id}
-                      initial={{ opacity: 0, x: -8 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: idx * 0.05 }}
-                      className="bg-white border border-[#e8e8e8] rounded-lg p-3 hover:shadow-sm transition-all"
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0 mt-1">
-                          {insight.type === 'pain-point' && <span className="text-lg">🎯</span>}
-                          {insight.type === 'persona' && <span className="text-lg">👤</span>}
-                          {insight.type === 'idea' && <span className="text-lg">💡</span>}
-                          {insight.type === 'market' && <span className="text-lg">📊</span>}
-                          {insight.type === 'next-step' && <span className="text-lg">→</span>}
-                          {insight.type === 'insight' && <span className="text-lg">✨</span>}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs font-semibold text-[#111111]">{insight.title}</p>
-                          <p className="text-xs text-[#666666] mt-1">{insight.description}</p>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
+      {/* Main Content Area with responsive layout */}
+      <div className="flex-1 overflow-hidden flex pt-20">
+        {/* Previous Insights Banner - Above Chat */}
+        {previousInsights.length > 0 && !notesSidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="absolute top-20 left-0 right-0 border-b border-gray-200 bg-blue-50 px-6 py-4 z-10 overflow-y-auto max-h-48"
+          >
+            <div className="max-w-6xl mx-auto">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-1.5 h-1.5 rounded-full bg-blue-600" />
+                <span className="text-xs font-semibold text-blue-600 uppercase tracking-wide">Previous Stage Insights</span>
               </div>
-            </motion.div>
-          )}
-          
+              <h3 className="text-sm font-semibold text-gray-900 mb-3">
+                From {previousStageName}
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+                {previousInsights.map((insight, idx) => (
+                  <motion.div
+                    key={insight.id}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: idx * 0.05 }}
+                    className="bg-white border border-gray-200 rounded-lg p-2 text-xs hover:shadow-sm transition-all"
+                  >
+                    <div className="flex items-start gap-2">
+                      <div className="flex-shrink-0 text-base">
+                        {insight.type === 'pain-point' && <span>🎯</span>}
+                        {insight.type === 'persona' && <span>👤</span>}
+                        {insight.type === 'idea' && <span>💡</span>}
+                        {insight.type === 'market' && <span>📊</span>}
+                        {insight.type === 'next-step' && <span>→</span>}
+                        {insight.type === 'insight' && <span>✨</span>}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-gray-900 line-clamp-1">{insight.title}</p>
+                        <p className="text-gray-600 line-clamp-1">{insight.description}</p>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Chat - Responsive width */}
+        <motion.div 
+          className="flex-1 overflow-hidden flex flex-col"
+          animate={{
+            width: notesSidebarOpen ? '50%' : '100%',
+          }}
+          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        >
           <ChatPanel
             messages={messages}
             onSendMessage={handleSendMessage}
-            onAddToCanvas={handleAddToCanvas}
+            onAddToNote={handleAddToNote}
             onClearChat={handleClearChat}
             isLoading={isLoading}
           />
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
-          className="hidden md:flex w-1/2 overflow-hidden flex-col bg-white border-l border-[#e8e8e8]"
-        >
-          <div data-canvas-export className="w-full h-full">
-            <CanvasPanel
-              insights={insights}
-              onRemoveInsight={handleRemoveInsight}
-            />
-          </div>
-        </motion.div>
+        {/* AvioNote Sidebar - Fixed 50% width */}
+        <StageNotesSidebar
+          stageId={stageId}
+          stageName={stageName}
+          isOpen={notesSidebarOpen}
+          onClose={() => setNotesSidebarOpen(false)}
+        />
       </div>
-
-      {insights.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#e8e8e8] h-48 overflow-y-auto shadow-2xl"
-        >
-          <CanvasPanel
-            insights={insights}
-            onRemoveInsight={handleRemoveInsight}
-          />
-        </motion.div>
-      )}
     </div>
   )
 }

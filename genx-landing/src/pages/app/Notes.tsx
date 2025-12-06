@@ -1,8 +1,8 @@
 import React from 'react'
-import NotesLayout from '../../components/notes/NotesLayout'
+import NotesWorkspace from '../../components/notes/NotesWorkspace'
 
 const NotesPage: React.FC = () => {
-  return <NotesLayout />
+  return <NotesWorkspace />
 }
 
 export default NotesPage

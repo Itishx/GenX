@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { FiArrowLeft, FiDownload, FiShare2, FiUsers, FiArrowRight } from 'react-icons/fi'
+import { FiArrowLeft, FiDownload, FiShare2, FiUsers, FiArrowRight, FiBook } from 'react-icons/fi'
 import { FOUNDRY_STAGES_ORDER, LAUNCH_STAGES_ORDER, ALL_STAGES } from '../../lib/stages';
 
 interface StageNavbarProps {
@@ -9,6 +9,8 @@ interface StageNavbarProps {
   stageDescription: string
   stageId: string
   onGoToNextStage: () => void;
+  onToggleNotesSidebar: () => void;
+  notesOpen?: boolean;
 }
 
 const StageNavbar: React.FC<StageNavbarProps> = ({ 
@@ -16,6 +18,8 @@ const StageNavbar: React.FC<StageNavbarProps> = ({
   stageDescription,
   stageId,
   onGoToNextStage,
+  onToggleNotesSidebar,
+  notesOpen = false,
 }) => {
   const [isExporting, setIsExporting] = useState(false)
   const navigate = useNavigate()
@@ -136,6 +140,22 @@ const StageNavbar: React.FC<StageNavbarProps> = ({
           transition={{ duration: 0.3, delay: 0.1 }}
           className="flex items-center gap-3"
         >
+          {/* AvioNote Sidebar Toggle */}
+          <motion.button
+            onClick={onToggleNotesSidebar}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+              notesOpen
+                ? 'bg-blue-100 text-blue-700 border border-blue-300'
+                : 'border border-gray-200 bg-white text-gray-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700'
+            }`}
+            title="Open AvioNote sidebar"
+          >
+            <FiBook className="w-4 h-4" />
+            <span className="hidden sm:inline">AvioNote</span>
+          </motion.button>
+
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
