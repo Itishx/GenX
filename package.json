@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "GenX monorepo with frontend and backend",
   "private": true,
+  "engines": {
+    "node": "18.x"
+  },
   "workspaces": [
     "genx-landing",
     "my-express-app"
