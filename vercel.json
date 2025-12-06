@@ -3,6 +3,7 @@
   "outputDirectory": "genx-landing/dist",
   "installCommand": "npm install",
   "devCommand": "cd genx-landing && npm run dev",
+  "framework": null,
   "rewrites": [
     {
       "source": "/(.*)",
