@@ -182,7 +182,6 @@ const NotesWorkspace: React.FC = () => {
         onProjectSelect={handleProjectSelect}
         isOpen={sidebarOpen}
         onToggleSidebar={handleToggleSidebar}
-        onNewNote={handleNewNote}
         currentStageId={currentStageId}
       />
 
@@ -227,7 +226,7 @@ const NotesWorkspace: React.FC = () => {
                   projectName={activeProject.name}
                   projectOS={activeProject.os}
                   notesByStage={notesByStage}
-                  activeProjectId={activeProjectId}
+                  activeProjectId={activeProjectId || undefined}
                 />
               </motion.div>
             ) : null}
