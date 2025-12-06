@@ -1,21 +1,11 @@
 {
-  "builds": [
+  "buildCommand": "cd genx-landing && npm run build",
+  "outputDirectory": "genx-landing/dist",
+  "installCommand": "npm install",
+  "rewrites": [
     {
-      "src": "genx-landing/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
