@@ -1,27 +1,5 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "genx-landing/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "genx-landing/dist",
-        "buildCommand": "npm run build --workspace=genx-landing"
-      }
-    },
-    {
-      "src": "my-express-app/package.json",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "my-express-app/src/app.ts"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "genx-landing/dist/index.html"
-    }
-  ]
+  "installCommand": "npm install --include=optional",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist"
 }
