@@ -136,7 +136,10 @@ const StageWorkspace: React.FC<StageWorkspaceProps> = ({
         content: msg.content
       }))
 
-      const response = await fetch('http://localhost:5001/api/chat', {
+      // Use relative URL for API call - works for both local and production
+      const apiUrl = '/api/chat'
+      
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
