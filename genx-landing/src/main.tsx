@@ -9,6 +9,7 @@ import Login from './pages/Login'
 import Signup from './pages/Signup'
 import ErrorBoundary from './components/ErrorBoundary'
 import useScrollToTop from './hooks/useScrollToTop'
+import NoteViewer from './components/notes/NoteViewer'
 
 // App layout and pages
 import AppLayout from './pages/app/AppLayout'
@@ -80,6 +81,16 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
               <Route path="notes" element={<NotesPage />} />
               <Route path="subscriptions" element={<Subscriptions />} />
             </Route>
+
+            {/* Note Viewer - Outside AppLayout */}
+            <Route
+              path="/app/notes/:noteId"
+              element={
+                <ProtectedRoute>
+                  <NoteViewer />
+                </ProtectedRoute>
+              }
+            />
 
             {/* Agents page without sidebar */}
             <Route

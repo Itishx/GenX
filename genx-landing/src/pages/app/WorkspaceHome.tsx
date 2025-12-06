@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { FiBook, FiArrowRight } from 'react-icons/fi'
 import { supabase } from '@/lib/supabaseClient'
 import ProjectSidebar, { Project } from '@/components/ProjectSidebar'
+import ProgressSection from '@/components/ProgressSection'
 
 interface LastStage {
   os: 'foundryos' | 'launchos'
@@ -247,6 +248,22 @@ const WorkspaceHome: React.FC = () => {
             initial={{ scaleX: 0 }}
             animate={{ scaleX: 1 }}
             transition={{ duration: 0.6, delay: 0.2 }}
+            className="my-16 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"
+            style={{ transformOrigin: 'left' }}
+          />
+
+          {/* Progress Section */}
+          <ProgressSection
+            projects={projects}
+            activeProjectId={activeProjectId}
+            onProjectSelect={handleProjectSelect}
+          />
+
+          {/* Divider */}
+          <motion.div
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
             className="my-16 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"
             style={{ transformOrigin: 'left' }}
           />

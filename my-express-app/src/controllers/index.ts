@@ -1,5 +1,7 @@
+import { Request, Response } from 'express';
+
 class IndexController {
-    getIndex(req, res) {
+    getIndex(req: Request, res: Response) {
         res.send('Welcome to the Express App!');
     }
 }

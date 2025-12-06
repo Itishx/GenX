@@ -1,9 +1,12 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import StageNavbar from './StageNavbar'
 import ChatPanel, { ChatMessage } from './ChatPanel'
-import CanvasPanel, { CanvasInsight } from './CanvasPanel'
+import StageNotesSidebar from './StageNotesSidebar'
+import { useSyncInsights } from '../../hooks/useSyncInsights'
+import { syncEmitter } from '../../hooks/notes/useNotes'
+import { FOUNDRY_STAGES_ORDER, LAUNCH_STAGES_ORDER, ALL_STAGES } from '../../lib/stages';
 
 interface StageWorkspaceProps {
   stageName: string
@@ -11,14 +14,20 @@ interface StageWorkspaceProps {
   stageId: string
 }
 
-// Extract title and description from AI response
+export interface CanvasInsight {
+  id: string
+  title: string
+  description: string
+  type: 'insight' | 'pain-point' | 'idea' | 'persona' | 'market' | 'next-step'
+  messageId: string
+  addedAt: Date
+}
+
 const extractInsightFromMessage = (message: string): { title: string; description: string; type: CanvasInsight['type'] } => {
-  // Simple heuristic: first sentence is title, rest is description
   const sentences = message.split(/(?<=[.!?])\s+/)
   const title = sentences[0].substring(0, 60) + (sentences[0].length > 60 ? '...' : '')
   const description = sentences.slice(1).join(' ').substring(0, 200)
 
-  // Determine type based on content
   let type: CanvasInsight['type'] = 'insight'
   const lowerMessage = message.toLowerCase()
   if (lowerMessage.includes('pain') || lowerMessage.includes('problem') || lowerMessage.includes('stuck')) {
@@ -41,18 +50,60 @@ const StageWorkspace: React.FC<StageWorkspaceProps> = ({
   stageDescription,
   stageId,
 }) => {
+  const { addInsight } = useSyncInsights()
   const [messages, setMessages] = useState<ChatMessage[]>([])
-  const [insights, setInsights] = useState<CanvasInsight[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [previousInsights, setPreviousInsights] = useState<CanvasInsight[]>([])
+  const [previousStageName, setPreviousStageName] = useState<string | null>(null)
+  const [notesSidebarOpen, setNotesSidebarOpen] = useState(false)
   const location = useLocation()
+  const navigate = useNavigate();
 
-  // Save last accessed stage to localStorage on mount
+  // Emit stage change event when stage changes
+  useEffect(() => {
+    const event = new CustomEvent('stageChanged', {
+      detail: { stageId, stageName }
+    })
+    window.dispatchEvent(event)
+  }, [stageId, stageName])
+
+  useEffect(() => {
+    const insightsKey = `canvas_insights_${stageId}`;
+    const storedInsights = sessionStorage.getItem(insightsKey);
+    
+    const previousStageKey = `previous_stage_${stageId}`;
+    const storedPreviousStage = sessionStorage.getItem(previousStageKey);
+    
+    if (storedInsights) {
+      setPreviousInsights(JSON.parse(storedInsights));
+      sessionStorage.removeItem(insightsKey);
+    }
+    
+    if (storedPreviousStage) {
+      setPreviousStageName(storedPreviousStage);
+      sessionStorage.removeItem(previousStageKey);
+    }
+  }, [stageId]);
+
+  useEffect(() => {
+    const historyKey = `chat_history_${stageId}`;
+    const storedHistory = sessionStorage.getItem(historyKey);
+    if (storedHistory) {
+      setMessages(JSON.parse(storedHistory));
+    }
+  }, [stageId]);
+
+  useEffect(() => {
+    if (messages.length > 0) {
+      const historyKey = `chat_history_${stageId}`;
+      sessionStorage.setItem(historyKey, JSON.stringify(messages));
+    }
+  }, [messages, stageId]);
+
   useEffect(() => {
     try {
       const isLaunch = location.pathname.startsWith('/launch/')
       const os = isLaunch ? 'launchos' : 'foundryos'
-      
-      // Get project name from query params or session storage
       const projectName = sessionStorage.getItem('currentProjectName') || 'Your Project'
       
       const lastStageData = {
@@ -68,162 +119,197 @@ const StageWorkspace: React.FC<StageWorkspaceProps> = ({
     }
   }, [stageId, stageName, location.pathname])
 
-  // Simple mock AI responses - in production, call your actual AI API
-  const generateAIResponse = (userMessage: string): string => {
-    const responses: Record<string, string[]> = {
-      ignite: [
-        `Great question! For the Ignite stage, focus on clarifying your core vision. The key is identifying: What problem are you solving? Who has this problem? Why does it matter now? Document your answers clearly—these become your foundation.`,
-        `A strong core vision should be specific but flexible. Instead of "We're building an app," try "We're helping [specific users] solve [specific problem] by [unique approach]." This clarity will guide all future decisions.`,
-        `Consider these frameworks: Jobs to be Done (what job do users hire your product for?), or the Problem-Solution fit canvas. Both help you articulate your idea beyond the initial spark.`,
-      ],
-      explore: [
-        `For Explore, you're mapping the landscape. Research competitor approaches, market gaps, user behavior patterns, and emerging trends. Document at least 3-5 competitors and identify what they do well and where they fall short.`,
-        `Look for "white space"—areas where no one is serving the market well. Interview potential users (10-15 conversations give you solid patterns). Document their workflows, frustrations, and workarounds.`,
-        `Create a simple competitive matrix showing how existing solutions compare on key dimensions. This visual helps you see where you can differentiate.`,
-      ],
-      empathize: [
-        `User empathy is about going deep. Conduct user interviews, observe them in their environment, and truly understand their pain points. Look for patterns across interviews—these become personas.`,
-        `Build 2-3 detailed personas: Name, background, goals, pain points, how they currently solve the problem. Make them real. This keeps you user-focused throughout development.`,
-        `Document the user journey: What triggers them to seek a solution? What's their process now? Where do they get stuck? Where do they succeed? This journey map is gold for product design.`,
-      ],
-      differentiate: [
-        `Differentiation isn't about doing everything—it's about being better at something that matters. Analyze what competitors do, then identify your defensible advantage. This could be: speed, cost, UX, audience focus, or novel approach.`,
-        `Create a value proposition: "Unlike [competitor], we [unique approach] because [reason it matters]." This one sentence should be crystal clear to your team and future customers.`,
-        `Consider switching costs. What makes it hard for users to leave once they adopt your solution? Strong differentiation often involves network effects, data network, or switching costs.`,
-      ],
-      architect: [
-        `Architecture is about structure. Define your core features, user workflows, and technical foundation. Avoid feature bloat—focus on the minimum set that delivers core value.`,
-        `Create a feature priority matrix: Impact (how much does it solve the user's problem?) vs. Effort (how hard is it to build?). Start with high-impact, low-effort items.`,
-        `Document your tech stack decisions: What frameworks? Database? Infrastructure? These decisions compound, so make them intentionally based on your specific needs, not trends.`,
-      ],
-      validate: [
-        `Validation means proving real demand exists. Run experiments: landing page tests, pre-orders, prototype testing, or pilot programs. Each experiment should answer a specific question about market demand.`,
-        `Start with the cheapest way to test. Before building, can you validate with landing pages, surveys, or customer interviews? This saves months of development.`,
-        `Track key metrics: How many sign up? How many convert? What's the feedback? Use these signals to iterate or pivot before full development.`,
-      ],
-      construct: [
-        `Construction planning bridges strategy to execution. Break your MVP into development sprints (2-week cycles). Define dependencies, risks, and resource needs upfront.`,
-        `Create a simple roadmap: What ships in sprint 1? Sprint 2? What's the MVP vs. nice-to-have? This clarity prevents endless feature creep and keeps the team aligned.`,
-        `Define your "Definition of Done": What makes a feature complete? Tests? Documentation? Review? Clear standards prevent rework and maintain quality.`,
-      ],
-      align: [
-        `Alignment means your strategy, messaging, and design all tell the same story. Does your landing page reflect your value prop? Does your product design match your brand? Do your team and investors understand the same vision?`,
-        `Create clear messaging pillars: 2-3 core messages that appear everywhere. These anchor your positioning and make marketing consistent.`,
-        `Before launch, ensure design, messaging, and positioning are synchronized. Inconsistency confuses users and dilutes your market impact.`,
-      ],
-    }
-
-    const stageResponses = responses[stageId.toLowerCase()] || responses.ignite
-    return stageResponses[Math.floor(Math.random() * stageResponses.length)]
-  }
-
-  const handleSendMessage = useCallback((content: string) => {
-    // Add user message
+  const handleSendMessage = useCallback(async (content: string) => {
     const userMessage: ChatMessage = {
       id: `msg-${Date.now()}-user`,
       role: 'user',
       content,
       timestamp: new Date(),
     }
+    
     setMessages(prev => [...prev, userMessage])
     setIsLoading(true)
 
-    // Simulate AI response delay
-    setTimeout(() => {
-      const aiResponse = generateAIResponse(content)
+    try {
+      const conversationHistory = [...messages, userMessage].map(msg => ({
+        role: msg.role === 'ai' ? 'assistant' : 'user',
+        content: msg.content
+      }))
+
+      const response = await fetch('http://localhost:5001/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: conversationHistory,
+          stage: stageName,
+          stageId: stageId
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.statusText}`)
+      }
+
+      const data = await response.json()
+      
+      console.log(`🤖 AI Response received | Model: ${data.modelUsed || 'unknown'} | Tokens: ${data.usage?.total_tokens || 'N/A'}`)
+      
       const aiMessage: ChatMessage = {
         id: `msg-${Date.now()}-ai`,
         role: 'ai',
-        content: aiResponse,
+        content: data.reply.content,
         timestamp: new Date(),
       }
+      
       setMessages(prev => [...prev, aiMessage])
+    } catch (error) {
+      console.error('Failed to get AI response:', error)
+      const errorMessage: ChatMessage = {
+        id: `msg-${Date.now()}-error`,
+        role: 'ai',
+        content: "I'm having trouble connecting to the brain. Please check if the backend is running and try again.",
+        timestamp: new Date(),
+      }
+      setMessages(prev => [...prev, errorMessage])
+    } finally {
       setIsLoading(false)
-    }, 800)
-  }, [stageName])
-
-  const handleAddToCanvas = useCallback((messageId: string) => {
-    const message = messages.find(m => m.id === messageId)
-    if (!message) return
-
-    const { title, description, type } = extractInsightFromMessage(message.content)
-
-    const insight: CanvasInsight = {
-      id: `insight-${Date.now()}`,
-      title,
-      description,
-      type,
-      messageId,
-      addedAt: new Date(),
     }
+  }, [messages, stageName, stageId])
 
-    setInsights(prev => [...prev, insight])
+  const handleClearChat = () => {
+    setMessages([]);
+    const historyKey = `chat_history_${stageId}`;
+    sessionStorage.removeItem(historyKey);
+  };
 
-    // Show toast notification (in production, use a toast library)
-    const event = new CustomEvent('showToast', {
-      detail: { message: 'Insight added to canvas!', type: 'success' },
-    })
-    window.dispatchEvent(event)
-  }, [messages])
+  const handleGoToNextStage = () => {
+    const isFoundry = location.pathname.startsWith('/foundry/');
+    const currentStages = isFoundry ? FOUNDRY_STAGES_ORDER : LAUNCH_STAGES_ORDER;
+    const currentIndex = currentStages.indexOf(stageId);
+    const nextStageId = currentIndex < currentStages.length - 1 ? currentStages[currentIndex + 1] : null;
+    
+    if (nextStageId) {
+      const insightsKey = `canvas_insights_${nextStageId}`;
+      sessionStorage.setItem(insightsKey, JSON.stringify(previousInsights));
+      
+      const previousStageKey = `previous_stage_${nextStageId}`;
+      sessionStorage.setItem(previousStageKey, stageName);
+      
+      const nextChatHistoryKey = `chat_history_${nextStageId}`;
+      sessionStorage.removeItem(nextChatHistoryKey);
+      
+      const nextStage = ALL_STAGES[nextStageId as keyof typeof ALL_STAGES];
+      navigate(nextStage.path);
+    }
+  };
 
-  const handleRemoveInsight = useCallback((id: string) => {
-    setInsights(prev => prev.filter(insight => insight.id !== id))
-  }, [])
+  const handleAddToNote = useCallback(async (messageId: string) => {
+    const message = messages.find(m => m.id === messageId)
+    if (!message) throw new Error('Message not found')
+
+    try {
+      const projectId = sessionStorage.getItem('currentProjectId') || 'default-project'
+      
+      // Use the new centralized sync service
+      addInsight(message.content, stageId, projectId, 'chat')
+
+      // Show success toast
+      const toastEvent = new CustomEvent('showToast', {
+        detail: { message: '✨ Added to AvioNote', type: 'success' },
+      })
+      window.dispatchEvent(toastEvent)
+    } catch (error) {
+      console.error('Error adding to AvioNote:', error)
+      throw error
+    }
+  }, [messages, stageId, addInsight])
 
   return (
-    <div className="fixed inset-0 bg-[#fafafa] overflow-hidden">
-      {/* Stage Navbar */}
+    <div className="fixed inset-0 bg-white overflow-hidden flex flex-col">
       <StageNavbar
         stageName={stageName}
         stageDescription={stageDescription}
+        stageId={stageId}
+        onGoToNextStage={handleGoToNextStage}
+        onToggleNotesSidebar={() => setNotesSidebarOpen(!notesSidebarOpen)}
+        notesOpen={notesSidebarOpen}
       />
 
-      {/* Main split-screen layout */}
-      <div className="pt-20 h-full flex overflow-hidden gap-0">
-        {/* Left Panel: Chat */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.4 }}
-          className="w-full md:w-1/2 border-r border-[#e8e8e8] overflow-hidden flex flex-col bg-white"
+      {/* Main Content Area with responsive layout */}
+      <div className="flex-1 overflow-hidden flex pt-20">
+        {/* Previous Insights Banner - Above Chat */}
+        {previousInsights.length > 0 && !notesSidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="absolute top-20 left-0 right-0 border-b border-gray-200 bg-blue-50 px-6 py-4 z-10 overflow-y-auto max-h-48"
+          >
+            <div className="max-w-6xl mx-auto">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-1.5 h-1.5 rounded-full bg-blue-600" />
+                <span className="text-xs font-semibold text-blue-600 uppercase tracking-wide">Previous Stage Insights</span>
+              </div>
+              <h3 className="text-sm font-semibold text-gray-900 mb-3">
+                From {previousStageName}
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+                {previousInsights.map((insight, idx) => (
+                  <motion.div
+                    key={insight.id}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: idx * 0.05 }}
+                    className="bg-white border border-gray-200 rounded-lg p-2 text-xs hover:shadow-sm transition-all"
+                  >
+                    <div className="flex items-start gap-2">
+                      <div className="flex-shrink-0 text-base">
+                        {insight.type === 'pain-point' && <span>🎯</span>}
+                        {insight.type === 'persona' && <span>👤</span>}
+                        {insight.type === 'idea' && <span>💡</span>}
+                        {insight.type === 'market' && <span>📊</span>}
+                        {insight.type === 'next-step' && <span>→</span>}
+                        {insight.type === 'insight' && <span>✨</span>}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-gray-900 line-clamp-1">{insight.title}</p>
+                        <p className="text-gray-600 line-clamp-1">{insight.description}</p>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Chat - Responsive width */}
+        <motion.div 
+          className="flex-1 overflow-hidden flex flex-col"
+          animate={{
+            width: notesSidebarOpen ? '50%' : '100%',
+          }}
+          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
         >
           <ChatPanel
             messages={messages}
             onSendMessage={handleSendMessage}
-            onAddToCanvas={handleAddToCanvas}
+            onAddToNote={handleAddToNote}
+            onClearChat={handleClearChat}
             isLoading={isLoading}
           />
         </motion.div>
 
-        {/* Right Panel: Canvas */}
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
-          className="hidden md:flex w-1/2 overflow-hidden flex-col bg-white border-l border-[#e8e8e8]"
-        >
-          <div data-canvas-export className="w-full h-full">
-            <CanvasPanel
-              insights={insights}
-              onRemoveInsight={handleRemoveInsight}
-            />
-          </div>
-        </motion.div>
+        {/* AvioNote Sidebar - Fixed 50% width */}
+        <StageNotesSidebar
+          stageId={stageId}
+          stageName={stageName}
+          isOpen={notesSidebarOpen}
+          onClose={() => setNotesSidebarOpen(false)}
+        />
       </div>
-
-      {/* Mobile canvas (hidden on desktop, shown below chat on mobile) */}
-      {insights.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#e8e8e8] h-48 overflow-y-auto shadow-2xl"
-        >
-          <CanvasPanel
-            insights={insights}
-            onRemoveInsight={handleRemoveInsight}
-          />
-        </motion.div>
-      )}
     </div>
   )
 }
