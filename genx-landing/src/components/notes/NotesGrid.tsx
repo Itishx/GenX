@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Note } from '../../hooks/notes/useNotes'
+import { Note, useNotes } from '../../hooks/notes/useNotes'
 import { FileText, Plus } from 'lucide-react'
 import NoteCard from './NoteCard'
 
@@ -8,21 +8,40 @@ interface NotesGridProps {
   projectName: string
   projectOS: 'foundryos' | 'launchos'
   notesByStage: { [stageId: string]: Note[] }
+  activeProjectId?: string
 }
 
-const NotesGrid: React.FC<NotesGridProps> = ({ projectName, projectOS, notesByStage }) => {
+const NotesGrid: React.FC<NotesGridProps> = ({ projectName, projectOS, notesByStage, activeProjectId }) => {
+  const { createNote } = useNotes()
   const [selectedStage, setSelectedStage] = useState<string | null>(null)
 
   const OSLabel = projectOS === 'foundryos' ? 'FoundryOS' : 'LaunchOS'
   const stageLabels: { [key: string]: string } = {
     'standalone': 'Standalone Notes',
     'ignite': 'Ignite Notes',
+    'explore': 'Explore Notes',
+    'empathize': 'Empathize Notes',
+    'differentiate': 'Differentiate Notes',
+    'architect': 'Architect Notes',
     'validate': 'Validate Notes',
+    'construct': 'Construct Notes',
+    'align': 'Align Notes',
+    'research': 'Research Notes',
+    'position': 'Position Notes',
+    'strategy': 'Strategy Notes',
+    'campaigns': 'Campaigns Notes',
+    'messaging': 'Messaging Notes',
+    'channels': 'Channels Notes',
+    'execute': 'Execute Notes',
     'scale': 'Scale Notes',
-    'launch': 'Launch Notes',
   }
 
   const totalNotes = Object.values(notesByStage).flat().length
+
+  const handleCreateNote = (stageId?: string) => {
+    const title = stageId && stageId !== 'standalone' ? `${stageLabels[stageId]}` : 'Untitled Note'
+    createNote(title, activeProjectId, stageId !== 'standalone' ? stageId : undefined, projectOS)
+  }
 
   return (
     <div className="min-h-screen bg-[#fafafa] px-6 py-8">
@@ -43,10 +62,15 @@ const NotesGrid: React.FC<NotesGridProps> = ({ projectName, projectOS, notesBySt
                 {projectName} • {totalNotes} {totalNotes === 1 ? 'note' : 'notes'}
               </p>
             </div>
-            <button className="inline-flex items-center gap-2 px-4 py-2 bg-[#ff6b00] text-white rounded-lg hover:bg-[#ff5a00] transition-colors font-medium">
+            <motion.button 
+              onClick={() => handleCreateNote('standalone')}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-[#ff6b00] text-white rounded-lg hover:bg-[#ff5a00] transition-colors font-medium"
+            >
               <Plus size={18} />
-              New Note
-            </button>
+              New Standalone Note
+            </motion.button>
           </div>
         </motion.div>
 
@@ -60,13 +84,25 @@ const NotesGrid: React.FC<NotesGridProps> = ({ projectName, projectOS, notesBySt
             <FileText size={48} className="mx-auto mb-4 text-gray-300" />
             <h3 className="text-2xl font-semibold text-gray-900 mb-2">No notes yet</h3>
             <p className="text-gray-600 mb-6">Start by creating a note from a stage or create one manually</p>
-            <button className="inline-flex items-center gap-2 px-6 py-3 bg-[#ff6b00] text-white rounded-lg hover:bg-[#ff5a00] transition-colors font-medium">
+            <motion.button 
+              onClick={() => handleCreateNote('standalone')}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-[#ff6b00] text-white rounded-lg hover:bg-[#ff5a00] transition-colors font-medium"
+            >
               <Plus size={18} />
               Create First Note
-            </button>
+            </motion.button>
           </motion.div>
         ) : (
-          Object.entries(notesByStage).map(([stageId, stageNotes], stageIndex) => (
+          Object.entries(notesByStage)
+            .sort(([stageA], [stageB]) => {
+              // Sort standalone notes to the end
+              if (stageA === 'standalone') return 1
+              if (stageB === 'standalone') return -1
+              return 0
+            })
+            .map(([stageId, stageNotes], stageIndex) => (
             <motion.div
               key={stageId}
               initial={{ opacity: 0, y: 20 }}
@@ -89,6 +125,17 @@ const NotesGrid: React.FC<NotesGridProps> = ({ projectName, projectOS, notesBySt
                     </p>
                   </div>
                 </div>
+                {stageId !== 'standalone' && (
+                  <motion.button
+                    onClick={() => handleCreateNote(stageId)}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-white border border-gray-200 text-gray-700 rounded hover:border-[#ff6b00] hover:bg-[#ff6b00]/5 transition-colors"
+                  >
+                    <Plus size={16} />
+                    Add Note
+                  </motion.button>
+                )}
               </div>
 
               {/* Notes Grid */}

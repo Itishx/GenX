@@ -19,6 +19,7 @@ const NotesWorkspace: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = React.useState(true)
   const [isModalOpen, setIsModalOpen] = React.useState(false)
   const [newProject, setNewProject] = React.useState<Project | null>(null)
+  const [currentStageId, setCurrentStageId] = React.useState<string | null>(null)
 
   // Load projects from database
   React.useEffect(() => {
@@ -62,6 +63,19 @@ const NotesWorkspace: React.FC = () => {
 
     loadProjects()
   }, [user?.id])
+
+  // Listen for stage changes from the stage components
+  useEffect(() => {
+    const handleStageChange = (event: any) => {
+      const stageId = event.detail?.stageId
+      if (stageId) {
+        setCurrentStageId(stageId)
+      }
+    }
+
+    window.addEventListener('stageChanged', handleStageChange)
+    return () => window.removeEventListener('stageChanged', handleStageChange)
+  }, [])
 
   const handleProjectSelect = (projectId: string) => {
     setActiveProjectId(projectId)
@@ -169,6 +183,7 @@ const NotesWorkspace: React.FC = () => {
         isOpen={sidebarOpen}
         onToggleSidebar={handleToggleSidebar}
         onNewNote={handleNewNote}
+        currentStageId={currentStageId}
       />
 
       {/* Main Content */}
@@ -212,6 +227,7 @@ const NotesWorkspace: React.FC = () => {
                   projectName={activeProject.name}
                   projectOS={activeProject.os}
                   notesByStage={notesByStage}
+                  activeProjectId={activeProjectId}
                 />
               </motion.div>
             ) : null}

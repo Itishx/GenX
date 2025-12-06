@@ -1,20 +1,40 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import { Note } from '../../hooks/notes/useNotes'
-import { FileText, Edit2, Trash2 } from 'lucide-react'
+import { FileText, Trash2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
 interface NoteCardProps {
   note: Note
+  onDelete?: (noteId: string) => void
 }
 
-const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
+const NoteCard: React.FC<NoteCardProps> = ({ note, onDelete }) => {
   const navigate = useNavigate()
   const [isHovered, setIsHovered] = React.useState(false)
 
   const handleCardClick = () => {
     // Navigate to note editor
     navigate(`/app/notes/${note.id}`)
+  }
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    
+    if (confirm(`Delete "${note.title || 'Untitled'}"? This cannot be undone.`)) {
+      if (onDelete) {
+        onDelete(note.id)
+      } else {
+        // Fallback: use localStorage if no onDelete callback
+        const stored = localStorage.getItem('aviate_notes')
+        if (stored) {
+          const notes = JSON.parse(stored)
+          const filtered = notes.filter((n: Note) => n.id !== note.id)
+          localStorage.setItem('aviate_notes', JSON.stringify(filtered))
+          window.location.reload() // Refresh to update the view
+        }
+      }
+    }
   }
 
   const formatDate = (timestamp: number) => {
@@ -71,29 +91,17 @@ const NoteCard: React.FC<NoteCardProps> = ({ note }) => {
             {formatDate(note.updatedAt)}
           </span>
           
-          {/* Action Buttons - Show on Hover */}
+          {/* Delete Button - Show on Hover */}
           <motion.div
             animate={{ opacity: isHovered ? 1 : 0 }}
             transition={{ duration: 0.2 }}
             className="flex items-center gap-2"
           >
             <button
-              onClick={(e) => {
-                e.stopPropagation()
-                navigate(`/app/notes/${note.id}/edit`)
-              }}
-              className="p-1.5 rounded hover:bg-blue-50 transition-colors"
-              title="Edit note"
-            >
-              <Edit2 size={14} className="text-blue-600" />
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                // Delete handler would go here
-              }}
+              onClick={handleDelete}
               className="p-1.5 rounded hover:bg-red-50 transition-colors"
               title="Delete note"
+              aria-label="Delete note"
             >
               <Trash2 size={14} className="text-red-600" />
             </button>

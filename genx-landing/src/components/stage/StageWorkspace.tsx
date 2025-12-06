@@ -59,6 +59,14 @@ const StageWorkspace: React.FC<StageWorkspaceProps> = ({
   const location = useLocation()
   const navigate = useNavigate();
 
+  // Emit stage change event when stage changes
+  useEffect(() => {
+    const event = new CustomEvent('stageChanged', {
+      detail: { stageId, stageName }
+    })
+    window.dispatchEvent(event)
+  }, [stageId, stageName])
+
   useEffect(() => {
     const insightsKey = `canvas_insights_${stageId}`;
     const storedInsights = sessionStorage.getItem(insightsKey);

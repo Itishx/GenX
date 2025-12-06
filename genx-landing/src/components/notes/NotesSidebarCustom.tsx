@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import GlobalSearch from '../GlobalSearch'
 import { Project } from '../../types'
+import { ALL_STAGES } from '../../lib/stages'
 
 interface NotesSidebarCustomProps {
   projects: Project[]
@@ -12,6 +13,7 @@ interface NotesSidebarCustomProps {
   onProjectSelect: (projectId: string) => void
   isOpen: boolean
   onToggleSidebar: () => void
+  currentStageId?: string | null
 }
 
 const NotesSidebarCustom: React.FC<NotesSidebarCustomProps> = ({
@@ -20,6 +22,7 @@ const NotesSidebarCustom: React.FC<NotesSidebarCustomProps> = ({
   onProjectSelect,
   isOpen,
   onToggleSidebar,
+  currentStageId,
 }) => {
   const { profile } = useAuth()
   const navigate = useNavigate()
@@ -29,6 +32,12 @@ const NotesSidebarCustom: React.FC<NotesSidebarCustomProps> = ({
     return os === 'foundryos' ? '🏗️' : '🚀'
   }
 
+  const getStageName = (stageId: string | null | undefined): string | null => {
+    if (!stageId) return null
+    const stage = ALL_STAGES[stageId as keyof typeof ALL_STAGES]
+    return stage ? stage.name : null
+  }
+
   const handleHomeClick = () => {
     navigate('/app/workspace-home')
   }
@@ -36,6 +45,9 @@ const NotesSidebarCustom: React.FC<NotesSidebarCustomProps> = ({
   const handleWorkspaceClick = () => {
     navigate('/app/agents')
   }
+
+  const stageName = getStageName(currentStageId)
+  const headerTitle = stageName ? `${stageName}'s Notes` : `${profile?.name || 'Avionote'}'s Avionote`
 
   return (
     <>
@@ -84,13 +96,14 @@ const NotesSidebarCustom: React.FC<NotesSidebarCustomProps> = ({
           </motion.button>
         </div>
 
-        {/* Header Section - Avionote Workspace */}
+        {/* Header Section - Dynamic based on current stage */}
         <div className="px-4 py-6 border-b border-gray-200 flex-shrink-0">
-          <motion.button
-            onClick={onToggleSidebar}
-            className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors group"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+          <motion.div
+            key={`header-${currentStageId}`}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2 }}
+            className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-gray-50 group"
           >
             <div className="flex items-center gap-2 min-w-0">
               <div className="h-6 w-6 rounded bg-gradient-to-br from-[#ff6b00] to-[#ff9248] flex items-center justify-center flex-shrink-0">
@@ -99,11 +112,10 @@ const NotesSidebarCustom: React.FC<NotesSidebarCustomProps> = ({
                 </span>
               </div>
               <span className="text-sm font-semibold text-gray-900 truncate">
-                {profile?.name || 'Avionote'}'s Avionote
+                {headerTitle}
               </span>
             </div>
-            <FiChevronDown className="h-4 w-4 text-gray-500 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
-          </motion.button>
+          </motion.div>
         </div>
 
         {/* Global Search Tab */}

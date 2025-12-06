@@ -193,16 +193,16 @@ const NotesSidebar: React.FC<NotesSidebarProps> = ({
         </div>
       </div>
 
-      {/* New Note Button */}
+      {/* New Standalone Note Button */}
       <div className="notes-sidebar__action-bar">
         <button
           onClick={onCreateNote}
           className="notes-sidebar__new-btn"
-          title="Create new note"
-          aria-label="Create new note"
+          title="Create new standalone note"
+          aria-label="Create new standalone note"
         >
           <Plus size={18} />
-          <span>New Note</span>
+          <span>New Standalone</span>
         </button>
       </div>
 
