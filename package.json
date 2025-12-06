@@ -17,5 +17,9 @@
   },
   "devDependencies": {
     "concurrently": "^8.2.0"
+  },
+  "dependencies": {
+    "@alloc/quick-lru": "^5.2.0",
+    "object-hash": "^3.0.0"
   }
 }
