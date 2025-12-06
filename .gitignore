@@ -30,3 +30,5 @@ logs/
 
 # Supabase local
 .supabase/
+.vercel
+.env*.local

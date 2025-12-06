@@ -11,7 +11,7 @@
     "my-express-app"
   ],
   "scripts": {
-    "dev": "concurrently \"npm run dev --workspace=genx-landing\" \"npm run dev --workspace=my-express-app\"",
+    "dev": "cd genx-landing && npm run dev",
     "build": "npm run build --workspace=genx-landing && npm run build --workspace=my-express-app",
     "start": "npm run start --workspace=my-express-app"
   },
