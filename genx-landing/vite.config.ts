@@ -9,11 +9,17 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
+    rollupOptions: {
+      external: ['jspdf', 'html2canvas']
+    }
   },
   resolve: {
     alias: {
       '@': '/src',
     },
+  },
+  optimizeDeps: {
+    exclude: ['html2pdf.js']
   },
   preview: {
     port: 3000,
