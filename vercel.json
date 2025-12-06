@@ -1,4 +1,17 @@
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": "genx-landing/dist"
+  "builds": [
+    {
+      "src": "genx-landing/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "genx-landing/$1"
+    }
+  ]
 }
