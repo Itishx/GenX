@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "A simple Express application built with TypeScript.",
   "main": "dist/app.js",
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "start": "node dist/app.js",
     "build": "tsc",
