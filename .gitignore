@@ -32,3 +32,6 @@ logs/
 .supabase/
 .vercel
 .env*.local
+
+# Development runtime files
+.api-port
