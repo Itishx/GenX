@@ -20,6 +20,8 @@
   },
   "dependencies": {
     "@alloc/quick-lru": "^5.2.0",
-    "object-hash": "^3.0.0"
+    "@vercel/node": "^5.5.15",
+    "object-hash": "^3.0.0",
+    "openai": "^6.10.0"
   }
 }
