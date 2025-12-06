@@ -1,0 +1,5 @@
+node_modules/
+.git/
+.DS_Store
+genx-landing/node_modules/
+my-express-app/node_modules/

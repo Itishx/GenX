@@ -1,0 +1,18 @@
+{
+  "name": "genx-monorepo",
+  "version": "1.0.0",
+  "description": "GenX monorepo with frontend and backend",
+  "private": true,
+  "workspaces": [
+    "genx-landing",
+    "my-express-app"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev --workspace=genx-landing\" \"npm run dev --workspace=my-express-app\"",
+    "build": "npm run build --workspace=genx-landing && npm run build --workspace=my-express-app",
+    "start": "npm run start --workspace=my-express-app"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}
