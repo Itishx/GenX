@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
+import TiptapImage from '@tiptap/extension-image'
 import { Loader, BookOpen } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { Note } from '../../hooks/notes/useNotes'
+import { supabase } from '../../lib/supabaseClient'
 import '../notes/NoteEditor.css'
 
 interface StageNotesSidebarProps {
@@ -24,17 +26,33 @@ const StageNotesSidebar: React.FC<StageNotesSidebarProps> = ({
   const [isSaving, setIsSaving] = useState(false)
   const [lastSaved, setLastSaved] = useState<number | null>(null)
   const [isInitialized, setIsInitialized] = useState(false)
+  const [showSlashMenu, setShowSlashMenu] = useState(false)
+  const [slashPosition, setSlashPosition] = useState<{ x: number; y: number } | null>(null)
+  const [imageUrlInput, setImageUrlInput] = useState('')
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null)
 
   const STAGE_NOTE_ID = `stage-${stageId}`
   const STORAGE_KEY = 'aviate_notes'
 
   // Initialize editor FIRST, before other effects
   const editor = useEditor({
-    extensions: [StarterKit],
+    extensions: [StarterKit, TiptapImage.configure({ HTMLAttributes: { class: 'note-editor__image' } })],
     content: '<p></p>',
     editorProps: {
       attributes: {
         class: 'note-editor__prose',
+      },
+      handleKeyDown(view, event) {
+        if (event.key === '/' && !event.shiftKey) {
+          const { left, top } = view.coordsAtPos(view.state.selection.from)
+          setSlashPosition({ x: left, y: top + 20 })
+          setShowSlashMenu(true)
+        }
+        if (event.key === 'Escape' && showSlashMenu) {
+          setShowSlashMenu(false)
+          return true
+        }
+        return false
       },
     },
     onUpdate: ({ editor }) => {
@@ -192,6 +210,51 @@ const StageNotesSidebar: React.FC<StageNotesSidebarProps> = ({
     }
   }
 
+  const insertImageByUrl = () => {
+    if (!editor || !imageUrlInput.trim() || !note) return
+    editor.chain().focus().setImage({ src: imageUrlInput.trim() }).run()
+    updateNoteInStorage(note.id, {
+      title: title || 'Untitled Note',
+      content: editor.getHTML(),
+    })
+    setImageUrlInput('')
+    setShowSlashMenu(false)
+  }
+
+  const handleFileSelect: React.ChangeEventHandler<HTMLInputElement> = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file || !editor || !note) return
+
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
+    const path = `notes/${note.id}/${Date.now()}-${safeName}`
+
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('avionote-images')
+      .upload(path, file, { upsert: false, contentType: file.type })
+
+    if (uploadError) {
+      console.error('Supabase upload failed:', uploadError?.message || uploadError)
+      return
+    }
+
+    const { data: publicData } = supabase.storage
+      .from('avionote-images')
+      .getPublicUrl(uploadData?.path || path)
+    const publicUrl = publicData?.publicUrl || ''
+    if (!publicUrl) {
+      console.error('Failed to get public URL for uploaded image')
+      return
+    }
+
+    editor.chain().focus().setImage({ src: publicUrl }).run()
+    updateNoteInStorage(note.id, {
+      title: title || 'Untitled Note',
+      content: editor.getHTML(),
+    })
+    setShowSlashMenu(false)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
   if (!isInitialized || !note) {
     return null
   }
@@ -259,6 +322,54 @@ const StageNotesSidebar: React.FC<StageNotesSidebarProps> = ({
           {/* Rich Text Editor */}
           <div className="note-editor__content" style={{ padding: '20px 32px', maxWidth: 'none' }}>
             <EditorContent editor={editor} />
+
+            {showSlashMenu && slashPosition && (
+              <div
+                className="slash-menu fixed z-50 rounded-xl border border-gray-200 bg-white shadow-xl"
+                style={{ left: slashPosition.x, top: slashPosition.y }}
+                onMouseDown={(e) => e.preventDefault()}
+              >
+                <div className="p-3 flex items-center justify-between border-b border-gray-100">
+                  <div className="text-xs font-medium text-gray-600">Insert</div>
+                  <button
+                    className="p-1 rounded hover:bg-gray-100"
+                    onClick={() => setShowSlashMenu(false)}
+                    aria-label="Close menu"
+                  >
+                    ✖️
+                  </button>
+                </div>
+                <div className="p-3 space-y-3">
+                  <div className="text-[11px] uppercase tracking-wide text-gray-400">Image</div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      className="flex-1 rounded-md border border-gray-200 px-2 py-1 text-xs"
+                      placeholder="Paste image URL"
+                      value={imageUrlInput}
+                      onChange={(e) => setImageUrlInput(e.target.value)}
+                    />
+                    <button
+                      className="inline-flex items-center gap-1 rounded-md bg-black px-2.5 py-1.5 text-xs font-semibold text-white"
+                      onClick={insertImageByUrl}
+                      title="Insert image from URL"
+                    >
+                      Insert
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileSelect}
+                      className="text-xs"
+                    />
+                    <span className="text-[12px] text-gray-500">or upload from device</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

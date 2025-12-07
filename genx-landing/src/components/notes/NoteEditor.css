@@ -247,6 +247,23 @@
   text-decoration: underline;
 }
 
+/* Responsive images inside editor */
+.note-editor__image {
+  display: block;
+  max-width: 100%;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  margin: 1rem 0;
+  object-fit: contain;
+}
+
+/* Slash menu styles */
+.slash-menu {
+  min-width: 320px;
+  max-width: 420px;
+}
+
 /* Focus state for editor - NO blue box */
 .note-editor__prose:focus-within {
   outline: none;
