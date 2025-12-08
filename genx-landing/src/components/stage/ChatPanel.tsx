@@ -70,6 +70,25 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
     ta.style.height = `${nextHeight}px`
   }, [inputValue])
 
+  useEffect(() => {
+    const adjustTextareaHeight = () => {
+      const ta = inputRef.current;
+      if (ta) {
+        ta.style.height = 'auto'; // Reset height to calculate scrollHeight accurately
+        ta.style.height = `${ta.scrollHeight}px`; // Set height to match content
+      }
+    };
+
+    adjustTextareaHeight(); // Adjust height on initial render
+
+    const observer = new MutationObserver(adjustTextareaHeight);
+    if (inputRef.current) {
+      observer.observe(inputRef.current, { childList: true, subtree: true });
+    }
+
+    return () => observer.disconnect(); // Cleanup observer on unmount
+  }, [inputValue]);
+
   const handleSendMessage = () => {
     if (inputValue.trim()) {
       if (editingMessageId) {
@@ -129,7 +148,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
           >
             <div className="w-full max-w-2xl text-center">
               <h2 className="text-3xl sm:text-4xl font-semibold text-gray-900 mb-4 leading-tight">
-                What would you like to explore, {profile?.name || 'there'}?
+                {`Let's dive in ${profile?.name || 'homie'}`}
               </h2>
               <p className="text-lg text-gray-600 leading-relaxed mb-8">
                 Ask questions about your strategy, market research, competitive analysis, or next steps. Get structured insights you can save to AvioNote.
@@ -140,51 +159,40 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
           <div className="flex-1 px-4 sm:px-8 lg:px-12 py-8 space-y-6 max-w-4xl mx-auto w-full">
             <AnimatePresence mode="popLayout">
               {messages.map((message) => (
-                <motion.div
-                  key={message.id}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -12 }}
-                  transition={{ duration: 0.3 }}
-                  className={`flex w-full ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div className={`max-w-xl ${message.role === 'user' ? 'w-auto' : 'w-full'}`}>
-                    {message.role === 'ai' ? (
-                      <div className="space-y-3">
-                        <div className="flex-1 space-y-4">
-                          <div className="text-gray-800 text-base leading-relaxed font-medium">
-                            {message.content.split('\n').map((paragraph, index) => (
-                              <p key={index} className="mb-3 last:mb-0">{paragraph}</p>
-                            ))}
-                          </div>
-                          <div className="flex items-center justify-start text-xs text-gray-500 gap-2">
-                            <motion.button
-                              onClick={() => handleAddToNote(message.id)}
-                              disabled={addingMessageId === message.id}
-                              whileHover={{ scale: addingMessageId === message.id ? 1 : 1.05 }}
-                              whileTap={{ scale: addingMessageId === message.id ? 1 : 0.95 }}
-                              className="text-orange-500 hover:text-orange-600"
-                            >
-                              <FiPlus className="w-4 h-4" />
-                            </motion.button>
-                          </div>
-                        </div>
+                message.role === 'ai' ? (
+                  <div className="flex w-full justify-start mb-4" key={message.id}>
+                    <div className="w-full">
+                      <p className="text-gray-800 text-base leading-relaxed font-medium whitespace-pre-wrap">
+                        {message.content}
+                      </p>
+                      <div className="flex items-center justify-start text-xs text-gray-500 gap-2 mt-2">
+                        <motion.button
+                          onClick={() => handleAddToNote(message.id)}
+                          disabled={addingMessageId === message.id}
+                          whileHover={{ scale: addingMessageId === message.id ? 1 : 1.05 }}
+                          whileTap={{ scale: addingMessageId === message.id ? 1 : 0.95 }}
+                          className="text-orange-500 hover:text-orange-600"
+                        >
+                          <FiPlus className="w-4 h-4" />
+                        </motion.button>
                       </div>
-                    ) : (
-                      <div className="flex justify-end">
-                        <div className="bg-gray-200 text-gray-900 rounded-lg px-4 py-3 text-sm leading-relaxed font-medium max-w-sm shadow-md relative">
-                          {message.content}
-                          <motion.button
-                            onClick={() => handleEditMessage(message.id, message.content)}
-                            className="absolute bottom-1 right-1 text-xs text-gray-500 hover:text-gray-700"
-                          >
-                            <FiEdit2 className="w-4 h-4" />
-                          </motion.button>
-                        </div>
-                      </div>
-                    )}
+                    </div>
                   </div>
-                </motion.div>
+                ) : (
+                  <div className="flex w-full justify-end mb-4" key={message.id}>
+                    <div className="bg-white border border-gray-200 p-4 rounded-xl shadow-sm w-auto max-w-[60%] break-words">
+                      <p className="text-gray-800 text-base leading-relaxed whitespace-pre-wrap">
+                        {message.content}
+                      </p>
+                      <motion.button
+                        onClick={() => handleEditMessage(message.id, message.content)}
+                        className="absolute bottom-1 right-1 text-xs text-gray-500 hover:text-gray-700"
+                      >
+                        <FiEdit2 className="w-4 h-4" />
+                      </motion.button>
+                    </div>
+                  </div>
+                )
               ))}
             </AnimatePresence>
 
@@ -227,7 +235,18 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
                 disabled={isLoading}
                 placeholder="Message..."
                 rows={1}
-                className="flex-1 bg-transparent text-base text-gray-900 placeholder-gray-500 outline-none resize-none disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                className="flex-1 bg-transparent text-base text-gray-900 placeholder-gray-500 outline-none resize-none disabled:opacity-50 disabled:cursor-not-allowed font-medium overflow-hidden break-words"
+                style={{
+                  wordWrap: 'break-word',
+                  overflowWrap: 'break-word',
+                  maxHeight: '120px',
+                  overflowY: 'auto',
+                  whiteSpace: 'pre-wrap',
+                  display: 'block',
+                  width: '100%',
+                  padding: '8px',
+                  boxSizing: 'border-box',
+                }}
               />
               <motion.button
                 onClick={handleSendMessage}
