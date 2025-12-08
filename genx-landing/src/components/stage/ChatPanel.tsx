@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FiSend, FiPlus, FiTrash2, FiUpload, FiSearch, FiChevronDown, FiEdit2 } from 'react-icons/fi'
+import { FiSend, FiPlus, FiTrash2, FiUpload, FiSearch, FiChevronDown, FiEdit2, FiMic } from 'react-icons/fi'
 import { useAuth } from '@/context/AuthContext'
 
 export interface ChatMessage {
@@ -17,6 +17,11 @@ interface ChatPanelProps {
   isLoading?: boolean
   onClearChat: () => void;
 }
+
+const MODEL_OPTIONS = [
+  { label: 'GPT-4o Mini', value: 'gpt-4o-mini' },
+  { label: 'Claude Sonnet', value: 'claude-sonnet' },
+]
 
 const TypingIndicator: React.FC = () => (
   <div className="flex gap-1.5">
@@ -51,6 +56,9 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
   const [addingMessageId, setAddingMessageId] = useState<string | null>(null)
   const [isFocused, setIsFocused] = useState(false)
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null)
+  const [selectedModel, setSelectedModel] = useState(MODEL_OPTIONS[0].value)
+  const [showModelDropdown, setShowModelDropdown] = useState(false)
+  const [showPlusModal, setShowPlusModal] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
@@ -225,6 +233,71 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
                   : 'border-gray-300 hover:border-gray-400'
               }`}
             >
+              {/* Plus Icon */}
+              <div className="relative">
+                <button
+                  className="flex items-center justify-center w-9 h-9 rounded-full text-gray-500 hover:text-green-600 transition-colors"
+                  type="button"
+                  tabIndex={-1}
+                  aria-label="Add"
+                  onClick={() => setShowPlusModal((v) => !v)}
+                >
+                  <FiPlus className="w-5 h-5" />
+                </button>
+                {showPlusModal && (
+                  <div className="absolute left-0 bottom-full mb-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-30">
+                    <button
+                      className="w-full text-left px-4 py-2 text-sm hover:bg-blue-50"
+                      type="button"
+                      onClick={() => setShowPlusModal(false)}
+                    >
+                      Upload photos and files
+                    </button>
+                    <button
+                      className="w-full text-left px-4 py-2 text-sm hover:bg-blue-50"
+                      type="button"
+                      onClick={() => setShowPlusModal(false)}
+                    >
+                      Create an Image
+                    </button>
+                    <button
+                      className="w-full text-left px-4 py-2 text-sm hover:bg-blue-50"
+                      type="button"
+                      onClick={() => setShowPlusModal(false)}
+                    >
+                      Connect External Tools
+                    </button>
+                  </div>
+                )}
+              </div>
+              {/* Model Switcher */}
+              <div className="relative">
+                <button
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-full border border-gray-300 bg-gray-50 text-xs font-medium text-gray-700 hover:border-orange-400 focus:outline-none"
+                  onClick={() => setShowModelDropdown((v) => !v)}
+                  type="button"
+                >
+                  {MODEL_OPTIONS.find((m) => m.value === selectedModel)?.label}
+                  <FiChevronDown className="w-3 h-3 ml-1" />
+                </button>
+                {showModelDropdown && (
+                  <div className="absolute left-0 bottom-full mb-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-20">
+                    {MODEL_OPTIONS.map((option) => (
+                      <button
+                        key={option.value}
+                        className={`w-full text-left px-4 py-2 text-sm hover:bg-orange-50 ${selectedModel === option.value ? 'bg-orange-100 font-semibold' : ''}`}
+                        onClick={() => {
+                          setSelectedModel(option.value)
+                          setShowModelDropdown(false)
+                        }}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {/* Textarea */}
               <textarea
                 ref={inputRef}
                 value={inputValue}
@@ -248,6 +321,16 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
                   boxSizing: 'border-box',
                 }}
               />
+              {/* Microphone Icon */}
+              <button
+                className="flex items-center justify-center w-9 h-9 rounded-full text-gray-500 hover:text-blue-600 transition-colors"
+                type="button"
+                tabIndex={-1}
+                aria-label="Voice input"
+              >
+                <FiMic className="w-5 h-5" />
+              </button>
+              {/* Send Button */}
               <motion.button
                 onClick={handleSendMessage}
                 disabled={isLoading || !inputValue.trim()}
