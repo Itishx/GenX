@@ -117,7 +117,7 @@ const Login: React.FC = () => {
               disabled={googleLoading}
               className="mt-6 flex w-full items-center justify-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-900 shadow-sm transition-colors hover:bg-gray-50 disabled:opacity-60"
             >
-              <img src="https://www.gstatic.com/images/branding/product/2x/google_gsuite_64dp.png" alt="Google" className="h-5 w-5" />
+              <img src="/assets/googlelogo.png" alt="Google" className="h-5 w-5 object-contain" style={{marginRight: '2px'}} />
               {googleLoading ? 'Connecting…' : 'Continue with Google'}
             </button>
 

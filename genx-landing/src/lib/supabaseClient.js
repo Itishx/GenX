@@ -55,6 +55,7 @@ export const supabase = /** @type {import('@supabase/supabase-js').SupabaseClien
           persistSession: true,
           autoRefreshToken: true,
           detectSessionInUrl: true,
+          storage: localStorage, // Ensure session is stored in localStorage for persistence
         },
       })
 )

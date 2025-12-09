@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FiSend, FiPlus, FiTrash2, FiUpload, FiSearch, FiChevronDown, FiEdit2, FiMic } from 'react-icons/fi'
+import { FiSend, FiPlus, FiTrash2, FiChevronDown, FiEdit2, FiMic } from 'react-icons/fi'
 import { useAuth } from '@/context/AuthContext'
 
 export interface ChatMessage {
@@ -8,11 +8,12 @@ export interface ChatMessage {
   role: 'user' | 'ai'
   content: string
   timestamp: Date
+  imageUrl?: string // Added for image messages
 }
 
 interface ChatPanelProps {
   messages: ChatMessage[]
-  onSendMessage: (message: string) => void
+  onSendMessage: (content: string, model?: string) => Promise<any>
   onAddToNote: (messageId: string) => Promise<void>
   isLoading?: boolean
   onClearChat: () => void;
@@ -58,7 +59,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null)
   const [selectedModel, setSelectedModel] = useState(MODEL_OPTIONS[0].value)
   const [showModelDropdown, setShowModelDropdown] = useState(false)
-  const [showPlusModal, setShowPlusModal] = useState(false)
+  const [showPlusModal, setShowPlusModal] = useState<boolean>(false); // Added state for modal visibility
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
@@ -97,14 +98,18 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
     return () => observer.disconnect(); // Cleanup observer on unmount
   }, [inputValue]);
 
+  const handleTogglePlusModal = () => {
+    setShowPlusModal((prev) => !prev);
+  };
+
   const handleSendMessage = () => {
     if (inputValue.trim()) {
       if (editingMessageId) {
-        setEditingMessageId(null)
+        setEditingMessageId(null);
       }
-      onSendMessage(inputValue)
-      setInputValue('')
-      inputRef.current?.focus()
+      onSendMessage(inputValue);
+      setInputValue('');
+      inputRef.current?.focus();
     }
   }
 
@@ -170,6 +175,10 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
                 message.role === 'ai' ? (
                   <div className="flex w-full justify-start mb-4" key={message.id}>
                     <div className="w-full">
+                      {/* Show image if present */}
+                      {message.imageUrl ? (
+                        <img src={message.imageUrl} alt="Generated" className="rounded-lg max-w-xs border mb-2" />
+                      ) : null}
                       <p className="text-gray-800 text-base leading-relaxed font-medium whitespace-pre-wrap">
                         {message.content}
                       </p>
