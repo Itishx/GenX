@@ -11,18 +11,43 @@ export interface ChatMessage {
   imageUrl?: string // Added for image messages
 }
 
+interface ModelOption { label: string; value: string }
+
+const MODEL_OPTIONS: ModelOption[] = [
+  { label: 'GPT-4o Mini', value: 'gpt-4o-mini' },
+  { label: 'Claude Sonnet', value: 'claude-sonnet' },
+]
+
 interface ChatPanelProps {
   messages: ChatMessage[]
   onSendMessage: (content: string, model?: string) => Promise<any>
   onAddToNote: (messageId: string) => Promise<void>
   isLoading?: boolean
   onClearChat: () => void;
+  stageId?: string;
 }
 
-const MODEL_OPTIONS = [
-  { label: 'GPT-4o Mini', value: 'gpt-4o-mini' },
-  { label: 'Claude Sonnet', value: 'claude-sonnet' },
-]
+// Per-stage helper text shown when there are no messages
+const STAGE_HELP_TEXTS: Record<string, string> = {
+  // FoundryOS
+  ignite: 'Spark ideas and define the problem you want to solve. Ask for opportunity areas, value propositions, and early hypotheses to move from concept to clarity.',
+  explore: 'Deep dive into user needs and market context. Ask for research plans, interview guides, and key questions to uncover insights and opportunities.',
+  empathize: 'Build empathy with real users. Ask for persona templates, empathy maps, and interview question sets to better understand your audience.',
+  differentiate: 'Find what makes you unique. Ask for positioning ideas, competitive differentiators, and ways to craft a distinct product story.',
+  architect: 'Turn insights into structure. Ask for information architecture, product outlines, and prioritized feature lists to organize your roadmap.',
+  validate: 'Test your assumptions. Ask for experiment designs, metrics to validate success, and ways to interpret user feedback.',
+  construct: 'Plan the build. Ask for implementation plans, milestone breakdowns, and engineering trade-offs to move from plan to product.',
+  align: 'Get the team on the same page. Ask for stakeholder summaries, rollout checklists, and communication plans to ensure smooth execution.',
+  // LaunchOS
+  research: 'Understand the market and customers. Ask for market sizing, competitor overviews, and research templates to inform your go-to-market strategy.',
+  position: 'Define your market position. Ask for value propositions, target segments, and messaging anchors that resonate with your audience.',
+  strategy: 'Build a go-to-market strategy. Ask for channel recommendations, budget allocations, and strategic KPIs to guide launch decisions.',
+  campaigns: 'Design effective campaigns. Ask for campaign ideas, audience targeting, and A/B test suggestions to optimize acquisition.',
+  messaging: 'Craft compelling messages. Ask for tagline options, feature-focused copy, and email sequences to communicate value clearly.',
+  channels: 'Choose where to show up. Ask for channel comparisons, content formats, and distribution plans to reach your audience efficiently.',
+  execute: 'Run and optimize your launch. Ask for task checklists, sequencing tips, and optimization suggestions to execute with confidence.',
+  scale: 'Grow sustainably. Ask for scaling strategies, retention plans, and metrics to measure what matters as you expand.',
+}
 
 const TypingIndicator: React.FC = () => (
   <div className="flex gap-1.5">
@@ -50,6 +75,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
   onAddToNote,
   isLoading = false,
   onClearChat,
+  stageId,
 }) => {
   const { profile } = useAuth();
   const [inputValue, setInputValue] = useState('')
@@ -164,7 +190,7 @@ const ChatPanel: React.FC<ChatPanelProps> = ({
                 {`Let's dive in ${profile?.name || 'homie'}`}
               </h2>
               <p className="text-lg text-gray-600 leading-relaxed mb-8">
-                Ask questions about your strategy, market research, competitive analysis, or next steps. Get structured insights you can save to AvioNote.
+                {STAGE_HELP_TEXTS[stageId || ''] || 'Ask questions about your strategy, market research, competitive analysis, or next steps. Get structured insights you can save to Avionote.'}
               </p>
             </div>
           </motion.div>

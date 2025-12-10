@@ -302,6 +302,7 @@ const StageWorkspace: React.FC<StageWorkspaceProps> = ({
             onAddToNote={handleAddToNote}
             onClearChat={handleClearChat}
             isLoading={isLoading}
+            stageId={stageId}
           />
         </motion.div>
 

@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import TiptapImage from '@tiptap/extension-image'
-import { Loader, BookOpen } from 'lucide-react'
+import { Loader } from 'lucide-react'
+import { FiDownload } from 'react-icons/fi'
 import { motion } from 'framer-motion'
 import { Note } from '../../hooks/notes/useNotes'
 import { supabase } from '../../lib/supabaseClient'
@@ -255,6 +256,11 @@ const StageNotesSidebar: React.FC<StageNotesSidebarProps> = ({
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
+  const handleExportPDF = () => {
+    // Logic for exporting the note as a PDF
+    console.log('Exporting note as PDF...')
+  }
+
   if (!isInitialized || !note) {
     return null
   }
@@ -272,9 +278,15 @@ const StageNotesSidebar: React.FC<StageNotesSidebarProps> = ({
       {/* Header */}
       <div className="border-b border-gray-200 px-6 py-4 flex items-center justify-between flex-shrink-0 pt-4">
         <div className="flex items-center gap-3">
-          <BookOpen className="w-5 h-5 text-blue-600" />
-          <h2 className="text-lg font-semibold text-gray-900">AvioNote</h2>
+          <h2 className="text-lg font-semibold text-gray-900">Avionote</h2>
         </div>
+        <button
+          onClick={handleExportPDF}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 bg-white text-gray-700 text-sm font-semibold transition-all hover:border-[#ff6b00] hover:bg-[#fff5f0] hover:text-[#ff6b00] hover:shadow-sm"
+        >
+          <FiDownload className="w-4 h-4" />
+          <span>Export</span>
+        </button>
       </div>
 
       {/* Editor Content */}
@@ -283,10 +295,7 @@ const StageNotesSidebar: React.FC<StageNotesSidebarProps> = ({
           {/* Hero Title Section - Scaled for sidebar */}
           <div className="note-editor__hero" style={{ padding: '40px 32px 24px 32px' }}>
             <div className="note-editor__hero-content">
-              {/* Emoji */}
-              <div className="note-editor__emoji" style={{ fontSize: '40px', marginBottom: '12px' }}>
-                📘
-              </div>
+              {/* emoji removed per request */}
 
               {/* Title Input */}
               <input
@@ -377,7 +386,7 @@ const StageNotesSidebar: React.FC<StageNotesSidebarProps> = ({
       {/* Footer Info */}
       <div className="border-t border-gray-200 px-6 py-3 bg-gray-50 flex-shrink-0">
         <p className="text-xs text-gray-500">
-          ✨ Synced with AvioNote workspace
+          ✨ Synced with Avionote workspace
         </p>
       </div>
     </motion.div>
