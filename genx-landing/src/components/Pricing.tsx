@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 
 type TabType = 'foundryos' | 'launchos' | 'bundle'
@@ -9,6 +9,7 @@ interface PricingPlan {
   price: number
   period: string
   savings?: number
+  localizedPrice?: number
 }
 
 const PRICING_PLANS: Record<TabType, PricingPlan[]> = {
@@ -67,16 +68,116 @@ const TAB_LABELS: Record<TabType, string> = {
 
 const Pricing: React.FC = () => {
   const [activeTab, setActiveTab] = React.useState<TabType>('foundryos')
+  const [localizedPlans, setLocalizedPlans] = useState<Record<TabType, PricingPlan[]> | null>(null)
+  const [currencySymbol, setCurrencySymbol] = useState<string>('$')
+  const [currencyCode, setCurrencyCode] = useState<string>('USD')
+  const [countryCode, setCountryCode] = useState<string | null>(null)
+  const [multiplier, setMultiplier] = useState<number>(1)
+
+  useEffect(() => {
+    let mounted = true
+    ;(async () => {
+      try {
+        const params = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '')
+        const overrideCountry = params.get('country') || params.get('dev_country')
+        const url = overrideCountry ? `/api/pricing?country=${encodeURIComponent(overrideCountry)}` : '/api/pricing'
+
+        const res = await fetch(url)
+        if (!res.ok) throw new Error('Network response was not ok')
+        const data = await res.json()
+        if (!mounted) return
+
+        // apply server response
+        setLocalizedPlans(data.plans)
+        setCurrencySymbol(data.symbol || '$')
+        setCurrencyCode(data.currency || (data.symbol === '₹' ? 'INR' : 'USD'))
+        setCountryCode(data.countryCode || null)
+        setMultiplier(data.multiplier || 1)
+
+        // If server couldn't detect a country (common in local dev), do a client-side lookup
+        if ((!data.countryCode || data.countryCode === null) && mounted) {
+          try {
+            const clientResp = await fetch('https://ipapi.co/json/')
+            if (clientResp.ok) {
+              const clientData = await clientResp.json()
+              const clientCountry = (clientData && clientData.country_code) ? String(clientData.country_code).toUpperCase() : null
+              if (clientCountry) {
+                const isIndia = clientCountry === 'IN'
+                const newMultiplier = isIndia ? 90 : 1
+                const newCurrency = isIndia ? 'INR' : 'USD'
+                const newSymbol = isIndia ? '₹' : '$'
+
+                // Recompute localized plans locally if server didn't provide meaningful values
+                const recomputed: Record<TabType, PricingPlan[]> = {
+                  foundryos: PRICING_PLANS.foundryos.map(p => ({ ...p, localizedPrice: Math.round(p.price * newMultiplier * 100) / 100 })),
+                  launchos: PRICING_PLANS.launchos.map(p => ({ ...p, localizedPrice: Math.round(p.price * newMultiplier * 100) / 100 })),
+                  bundle: PRICING_PLANS.bundle.map(p => ({ ...p, localizedPrice: Math.round(p.price * newMultiplier * 100) / 100 })),
+                }
+
+                setLocalizedPlans(recomputed)
+                setCurrencyCode(newCurrency)
+                setCurrencySymbol(newSymbol)
+                setCountryCode(clientCountry)
+                setMultiplier(newMultiplier)
+
+                // Optionally update URL without reload for consistency
+                try {
+                  const qp = new URLSearchParams(window.location.search)
+                  if (!qp.get('country')) {
+                    qp.set('country', clientCountry)
+                    window.history.replaceState(null, '', `${window.location.pathname}?${qp.toString()}`)
+                  }
+                } catch (e) {
+                  // ignore URL update errors
+                }
+              }
+            }
+          } catch (e) {
+            // ignore client-side lookup errors
+          }
+        }
+      } catch (e) {
+        console.warn('Failed to load localized pricing, falling back to defaults', e)
+        setCurrencySymbol('$')
+        setCurrencyCode('USD')
+        const fallback: Record<TabType, PricingPlan[]> = {
+          foundryos: PRICING_PLANS.foundryos.map(p => ({ ...p, localizedPrice: p.price })),
+          launchos: PRICING_PLANS.launchos.map(p => ({ ...p, localizedPrice: p.price })),
+          bundle: PRICING_PLANS.bundle.map(p => ({ ...p, localizedPrice: p.price })),
+        }
+        setLocalizedPlans(fallback)
+        setCountryCode(null)
+        setMultiplier(1)
+      }
+    })()
+    return () => {
+      mounted = false
+    }
+  }, [])
 
   const tabs: TabType[] = ['foundryos', 'launchos', 'bundle']
-  const currentPlans = PRICING_PLANS[activeTab]
+  const currentPlans = (localizedPlans ? localizedPlans[activeTab] : PRICING_PLANS[activeTab]) as PricingPlan[]
+
+  const formatPrice = (value: number | undefined) => {
+    const val = typeof value === 'number' ? value : 0
+    try {
+      const opts: Intl.NumberFormatOptions = {
+        style: 'currency',
+        currency: currencyCode || (currencySymbol === '₹' ? 'INR' : 'USD'),
+        maximumFractionDigits: currencyCode === 'INR' ? 0 : 2,
+      }
+      return new Intl.NumberFormat(undefined, opts).format(val)
+    } catch (err) {
+      return `${currencySymbol}${val}`
+    }
+  }
 
   return (
     <section id="pricing" className="relative bg-white py-12 md:py-16 px-6">
       <div className="mx-auto max-w-6xl">
         {/* Header */}
         <motion.div
-          className="text-center mb-10"
+          className="text-center mb-4"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.2 }}
@@ -85,6 +186,15 @@ const Pricing: React.FC = () => {
           <p className="text-sm text-[#777777] uppercase tracking-wide mb-3 font-medium">Pricing</p>
           <h2 className="text-4xl font-semibold text-[#111111] mb-2">Our Pricing</h2>
           <p className="text-[#555555] text-base">Simple plans. No hidden fees.</p>
+
+          {/* Debug badge showing detected country/multiplier */}
+          <div className="mt-3">
+            <span className="inline-flex items-center gap-2 text-xs text-[#555]">
+              <strong>Detected:</strong>
+              <span className="px-2 py-1 rounded bg-gray-100 text-xs">{countryCode || 'unknown'}</span>
+              <span className="px-2 py-1 rounded bg-gray-100 text-xs">{currencyCode}</span>
+            </span>
+          </div>
         </motion.div>
 
         {/* Tabs */}
@@ -145,7 +255,9 @@ const Pricing: React.FC = () => {
 
                   {/* Price Section */}
                   <div className="mt-6 flex items-baseline gap-1">
-                    <span className="text-5xl font-bold text-[#111111]">${plan.price}</span>
+                    <span className="text-5xl font-bold text-[#111111]">
+                      {formatPrice(plan.localizedPrice ?? plan.price)}
+                    </span>
                     <span className="text-sm text-[#777777]">/ {plan.period}</span>
                   </div>
 

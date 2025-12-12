@@ -86,6 +86,75 @@ app.all('/api/chat', async (req, res) => {
   }
 });
 
+// Route to simulate Vercel's /api/pricing endpoint
+let pricingHandler;
+try {
+  const pricingModule = require('./api/pricing.ts');
+  pricingHandler = pricingModule.default || pricingModule;
+} catch (error) {
+  console.error('Failed to load pricing handler:', error);
+  process.exit(1);
+}
+
+app.all('/api/pricing', async (req, res) => {
+  try {
+    // Create Vercel-like request/response objects
+    const vercelReq = {
+      method: req.method,
+      body: req.body,
+      headers: req.headers,
+      query: req.query,
+      socket: req.socket,
+    };
+
+    let statusCode = 200;
+    let responseData = null;
+    let responseEnded = false;
+
+    const vercelRes = {
+      status: (code) => {
+        statusCode = code;
+        return {
+          json: (data) => {
+            responseData = data;
+            return vercelRes;
+          },
+          end: () => {
+            responseEnded = true;
+            return vercelRes;
+          },
+        };
+      },
+      json: (data) => {
+        responseData = data;
+        return vercelRes;
+      },
+      setHeader: (name, value) => {
+        res.setHeader(name, value);
+        return vercelRes;
+      },
+      end: () => {
+        responseEnded = true;
+        return vercelRes;
+      },
+    };
+
+    await pricingHandler(vercelReq, vercelRes);
+
+    // Send the response
+    if (responseEnded) {
+      res.status(statusCode).end();
+    } else if (responseData) {
+      res.status(statusCode).json(responseData);
+    } else {
+      res.status(statusCode).end();
+    }
+  } catch (error) {
+    console.error('Error in pricing handler:', error);
+    res.status(500).json({ error: 'Internal server error', details: error.message });
+  }
+});
+
 // Function to find available port
 function findAvailablePort(startPort) {
   return new Promise((resolve) => {
